@@ -1,6 +1,7 @@
 package com.ek.app.inventory.domain;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import com.ek.app.inventory.infra.db.InventoryMovement;
 import com.ek.app.inventory.infra.db.InventoryMovementRepository;
 import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
+import com.ek.app.productcatalog.db.Product;
 import com.ek.app.productcatalog.db.ProductRepository;
 
 import jakarta.transaction.Transactional;
@@ -108,8 +110,6 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public void updateStock(InventoryMovementDto movementDto, Long productId, Integer qty, InventoryType type) {
-        movementDto.setProductId(productId);
-        this.inventoryRepository.save(dtoToEntity(movementDto));
         switch (type) {
             case IN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
@@ -126,6 +126,10 @@ public class InventoryServiceImpl implements InventoryService {
             default:
                 break;
         }
+        movementDto.setProductId(productId);
+        InventoryMovement  mov = dtoToEntity(movementDto);
+        this.inventoryRepository.save(mov);
+        
     }
 
     private InventoryMovementDto entityToDto(InventoryMovement InventoryMovement) {
@@ -141,7 +145,10 @@ public class InventoryServiceImpl implements InventoryService {
         }
         InventoryMovement inventoryMovement = new InventoryMovement();
         BeanUtils.copyProperties(InventoryMovementDto, inventoryMovement);
-        inventoryMovement.setProduct(this.productRepository.findById(InventoryMovementDto.getProductId()).get());
+        Optional<Product> op = this.productRepository.findById(InventoryMovementDto.getProductId());
+        Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(op.get());
+        inventoryMovement.setProduct( op.get());
+        inventoryMovement.setOnHandAfter(ip.get().getOnHandQty());
         return inventoryMovement;
     }
 

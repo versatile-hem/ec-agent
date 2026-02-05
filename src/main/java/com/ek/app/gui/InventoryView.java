@@ -147,16 +147,19 @@ public class InventoryView extends VerticalLayout {
 
     private void openLastTxb(ProductDto dto) {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle( " : " + dto.getProduct_title());
+        dialog.setHeaderTitle(  dto.getProduct_title() ); 
+        Div div = new Div();
+        div.add("current stock : "+dto.getAvailableStock());
         Grid<InventoryMovementDto> grid = new Grid<>(InventoryMovementDto.class, false);
         grid.addColumn(InventoryMovementDto::getMovementType).setHeader("Stock In/Out");
         grid.addColumn(InventoryMovementDto::getQuantity).setHeader("Qty") ;
+        grid.addColumn(InventoryMovementDto::getOnHandAfter).setHeader("After On hand Qty") ;
         grid.addColumn(InventoryMovementDto::getSalesChannel).setHeader("channel");
         grid.addColumn(InventoryMovementDto::getReference).setHeader("reference");
         grid.addColumn(InventoryMovementDto::getMovementTime).setHeader("Timestamp");
         List<InventoryMovementDto> stockMove = inventoryService.searchStockFlow(dto.getProductId());
         grid.setItems(stockMove);
-        add(grid);
+        dialog.add(div);
         dialog.add(new VerticalLayout(grid));
         dialog.open();
     }
