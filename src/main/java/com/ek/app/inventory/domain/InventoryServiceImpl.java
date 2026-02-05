@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ek.app.inventory.infra.db.InventoryMovement;
@@ -11,6 +13,7 @@ import com.ek.app.inventory.infra.db.InventoryMovementRepository;
 import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
 import com.ek.app.productcatalog.db.ProductRepository;
+
 import jakarta.transaction.Transactional;
 
 @Service
@@ -146,5 +149,19 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryPosition findInventoryPosition(int product_id) {
         throw new UnsupportedOperationException("Unimplemented method 'findInventoryPosition'");
     }
+
+    @Override
+    public List<InventoryMovementDto> searchStockFlow(Long product_id) {
+        org.springframework.data.domain.Pageable pageable = Pageable.ofSize(10);
+        Page<InventoryMovement> page = this.inventoryRepository.findByProduct_Id(product_id, pageable);
+        return page.get().map(e -> {
+            InventoryMovementDto dto = new InventoryMovementDto();
+            BeanUtils.copyProperties(e, dto);
+            return dto;
+        }).toList();
+    }
+
+
+
 
 }

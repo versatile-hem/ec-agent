@@ -1,0 +1,35 @@
+scalar UUID
+scalar DateTime
+
+type Product {
+  productId: UUID!
+  name: String!
+  description: String
+  baseUnit: String!
+  createdAt: DateTime
+}
+
+input CreateProductInput {
+  productId: UUID!          # You can let server generate if preferred
+  name: String!
+  description: String
+  baseUnit: String!
+}
+
+input UpdateProductInput {
+  productId: UUID!
+  name: String
+  description: String
+  baseUnit: String
+}
+
+type Query {
+  productById(productId: UUID!): Product
+  products: [Product!]!
+}
+
+type Mutation {
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(input: UpdateProductInput!): Product!
+  deleteProduct(productId: UUID!): Boolean!
+}

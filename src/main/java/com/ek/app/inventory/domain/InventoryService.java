@@ -32,5 +32,12 @@ public interface InventoryService {
     
     InventoryPosition findInventoryPosition(int product_id);
 
+    /**
+     * 
+     * @param product_id
+     * @return
+     */
+    List<InventoryMovementDto> searchStockFlow(Long product_id);
+
 
 }

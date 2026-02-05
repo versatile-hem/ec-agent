@@ -113,7 +113,7 @@ public class InventoryView extends VerticalLayout {
         Button adjust = new Button("±", e -> openAdjustDialog(dto));
         Button damage = new Button("Damage", e -> openDamageDialog(dto));
         Button ret = new Button("Return", e -> openReturnDialog(dto));
-        Button vm = new Button("View Movements", e -> openReturnDialog(dto));
+        Button vm = new Button("View Movements", e -> openLastTxb(dto));
         in.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         damage.addThemeVariants(ButtonVariant.LUMO_ERROR);
         HorizontalLayout actions = new HorizontalLayout(in, out, adjust, damage, ret,vm);
@@ -143,6 +143,22 @@ public class InventoryView extends VerticalLayout {
 
     private void openReturnDialog(ProductDto dto) {
         openQtyDialog("Return", dto, InventoryType.RETURN);
+    }
+
+    private void openLastTxb(ProductDto dto) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle( " : " + dto.getProduct_title());
+        Grid<InventoryMovementDto> grid = new Grid<>(InventoryMovementDto.class, false);
+        grid.addColumn(InventoryMovementDto::getMovementType).setHeader("Stock In/Out");
+        grid.addColumn(InventoryMovementDto::getQuantity).setHeader("Qty") ;
+        grid.addColumn(InventoryMovementDto::getSalesChannel).setHeader("channel");
+        grid.addColumn(InventoryMovementDto::getReference).setHeader("reference");
+        grid.addColumn(InventoryMovementDto::getMovementTime).setHeader("Timestamp");
+        List<InventoryMovementDto> stockMove = inventoryService.searchStockFlow(dto.getProductId());
+        grid.setItems(stockMove);
+        add(grid);
+        dialog.add(new VerticalLayout(grid));
+        dialog.open();
     }
 
     // ---------------- COMMON QTY DIALOG ----------------

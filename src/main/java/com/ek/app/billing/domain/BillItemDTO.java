@@ -2,8 +2,6 @@ package com.ek.app.billing.domain;
 
 import java.math.BigDecimal;
 
-import com.ek.app.productcatalog.ProductDto;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
