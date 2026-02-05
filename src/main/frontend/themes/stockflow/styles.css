@@ -1,0 +1,135 @@
+/* Page background */
+.main-view {
+    background-color: #fffef2; /* soft light yellow */
+    padding: 20px;
+}
+
+/* Header / Navbar */
+.app-header {
+    background: #e3f6e3; /* light green */
+    padding: 12px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Navigation links */
+.nav-link {
+    color: #333;
+    font-weight: 500;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+.nav-link:hover {
+    color: #2e7d32;
+}
+
+/* Grid container */
+.inventory-grid {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 10px;
+}
+
+/* Buttons */
+.action-btn {
+    background: #e3f6e3;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.action-btn-secondary {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* Pager buttons */
+.pager-btn {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+}
+
+/* Titles */
+.page-title {
+    font-weight: 600;
+    color: #333;
+}
+
+
+:root {
+  --card-radius: 14px;
+  --card-border: 1px solid #E8EAF2;
+  --muted: #6B7280;
+  --positive: #16A34A;
+  --negative: #DC2626;
+  --brand: #5B6CFF;
+}
+
+vaadin-app-layout::part(navbar) {
+  box-shadow: none;
+  border-bottom: var(--card-border);
+  background: #fff;
+}
+
+.topbar .top-search {
+  --vaadin-input-field-border-color: transparent;
+  --vaadin-input-field-background: #F5F7FB;
+  border-radius: 10px;
+}
+
+.drawer .brand { margin: 8px 12px; }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.card {
+  background: #fff;
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  padding: 16px;
+}
+
+/* Layout spans to match the screenshot proportions */
+.kpi-card { grid-column: span 3; }
+.chart-card { grid-column: span 4; min-height: 280px; }
+.list-card { grid-column: span 4; min-height: 280px; }
+.grid-card { grid-column: span 8; }
+.movement-card { grid-column: span 4; min-height: 320px; }
+
+/* Titles & text */
+.card-title { margin: 0 0 8px 0; font-weight: 600; }
+.muted { color: var(--muted); font-size: 12px; }
+.subtle-badge {
+  margin-top: 4px; font-size: 11px; color: var(--muted);
+  background: #F5F7FB; border-radius: 8px; padding: 2px 8px; display: inline-block;
+}
+
+/* KPIs */
+.kpi-value { font-size: 28px; font-weight: 700; margin: 8px 0; }
+.kpi-delta { font-size: 12px; font-weight: 600; }
+.kpi-delta.up { color: var(--positive); }
+.kpi-delta.down { color: var(--negative); }
+
+/* Simple sparkline placeholder */
+.sparkline {
+  height: 120px;
+  background:
+    linear-gradient(180deg, rgba(91,108,255,0.15), rgba(91,108,255,0)) no-repeat;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .kpi-card, .chart-card, .list-card, .grid-card, .movement-card { grid-column: span 6; }
+}
+@media (max-width: 768px) {
+  .kpi-card, .chart-card, .list-card, .grid-card, .movement-card { grid-column: span 12; }
+  .topbar .top-search { width: 100% !important; }
+}
+
