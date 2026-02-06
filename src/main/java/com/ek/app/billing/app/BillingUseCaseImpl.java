@@ -13,7 +13,6 @@ import com.ek.app.billing.domain.BillItemDTO;
 import com.ek.app.billing.infra.db.BillHeader;
 import com.ek.app.billing.infra.db.BillHeaderRepository;
 import com.ek.app.billing.infra.db.BillItem;
-import com.ek.app.billing.infra.db.BillItemRepository;
 import com.ek.app.productcatalog.db.Product;
 import com.ek.app.productcatalog.db.ProductRepository;
 
@@ -26,9 +25,6 @@ public class BillingUseCaseImpl implements BillingUseCase {
 
     @Autowired
     private BillHeaderRepository billRepo;
-
-    @Autowired
-    private BillItemRepository billItemRepo;
 
     @Autowired
     private ProductRepository productRepo;

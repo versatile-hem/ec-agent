@@ -1,6 +1,7 @@
 package com.ek.app.gui;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,17 +27,21 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@PageTitle("Dashboard")
+@RolesAllowed("ADMIN")
 @Route(value = "inventory", layout = MainLayout.class)
 public class InventoryView extends VerticalLayout {
 
@@ -69,7 +74,7 @@ public class InventoryView extends VerticalLayout {
     private Component buildHeader() {
         TextField search = new TextField();
         search.setPlaceholder("Search SKU / Product");
-        Button refresh = new Button("Search", e -> refresh());
+        Button refresh = new Button("Search", e -> search(search.getValue()));
         HorizontalLayout header = new HorizontalLayout(search, refresh);
         header.setWidthFull();
         header.setAlignItems(Alignment.END);
@@ -108,17 +113,23 @@ public class InventoryView extends VerticalLayout {
     // ---------------- ACTION BUTTONS ----------------
 
     private Component actionButtons(ProductDto dto) {
-        Button in = new Button("+IN", e -> openInDialog(dto));
-        Button out = new Button("-OUT", e -> openOutDialog(dto));
+        Button in = new Button("⬆ IN", e -> openInDialog(dto));
+        Button out = new Button("⬇ OUT", e -> openOutDialog(dto));
         Button adjust = new Button("±", e -> openAdjustDialog(dto));
-        Button damage = new Button("Damage", e -> openDamageDialog(dto));
+        Button damage = new Button("⚠", e -> openDamageDialog(dto));
+        damage.getElement().setProperty("title", "Damage");
         Button ret = new Button("Return", e -> openReturnDialog(dto));
         Button vm = new Button("View Movements", e -> openLastTxb(dto));
-        in.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        damage.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        HorizontalLayout actions = new HorizontalLayout(in, out, adjust, damage, ret,vm);
-        actions.setSpacing(false);
-        actions.setPadding(false);
+        in.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SUCCESS);
+        damage.addThemeVariants(ButtonVariant.LUMO_ICON);
+        // HorizontalLayout actions = new HorizontalLayout(in, out, adjust, damage, ret,
+        // vm);
+        FlexLayout actions = new FlexLayout(in, out, adjust, damage, ret, vm);
+        actions.setFlexWrap(FlexLayout.FlexWrap.WRAP);
+        actions.setWidthFull();
+        // actions.setSpacing(true);
+        // actions.setPadding(true);
+
         return actions;
 
     }
@@ -147,13 +158,39 @@ public class InventoryView extends VerticalLayout {
 
     private void openLastTxb(ProductDto dto) {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle(  dto.getProduct_title() ); 
+        dialog.setHeaderTitle(dto.getProduct_title());
         Div div = new Div();
-        div.add("current stock : "+dto.getAvailableStock());
+        div.add("current stock : " + dto.getAvailableStock());
         Grid<InventoryMovementDto> grid = new Grid<>(InventoryMovementDto.class, false);
         grid.addColumn(InventoryMovementDto::getMovementType).setHeader("Stock In/Out");
-        grid.addColumn(InventoryMovementDto::getQuantity).setHeader("Qty") ;
-        grid.addColumn(InventoryMovementDto::getOnHandAfter).setHeader("After On hand Qty") ;
+        grid.addColumn(im -> {
+            String icon = "";
+            switch (im.getMovementType()) {
+                case RETURN, IN:
+                    icon = "⬆ ";
+                    break;
+                case OUT:
+                    icon = "⬇ ";
+                    break;
+                case DAMAGE:
+                    icon = "⚠ ";
+                    break;
+                default:
+                    icon = "";
+                    break;
+            }
+
+            BigDecimal q = im.getQuantity();
+            return q == null ? "" : icon.concat(q.setScale(0, RoundingMode.DOWN).toPlainString());
+        }).setHeader("Qty");
+
+        grid.addColumn(im -> {
+            BigDecimal q = im.getOnHandAfter();
+            return q == null ? "" : q.setScale(0, RoundingMode.DOWN).toPlainString();
+        }).setHeader("After On hand Qty");
+        // grid.addColumn(InventoryMovementDto::getQuantity).setHeader("Qty") ;
+        // grid.addColumn(InventoryMovementDto::getOnHandAfter).setHeader("After On hand
+        // Qty") ;
         grid.addColumn(InventoryMovementDto::getSalesChannel).setHeader("channel");
         grid.addColumn(InventoryMovementDto::getReference).setHeader("reference");
         grid.addColumn(InventoryMovementDto::getMovementTime).setHeader("Timestamp");
@@ -180,7 +217,6 @@ public class InventoryView extends VerticalLayout {
                 channel.name().substring(1).toLowerCase());
         salesChannel.setPlaceholder("Select channel");
         salesChannel.setClearButtonVisible(true);
-
         movementTime.setValue(LocalDateTime.now());
         movementTime.setStep(Duration.ofMinutes(1));
         Button save = new Button("Save", e -> {
@@ -209,6 +245,31 @@ public class InventoryView extends VerticalLayout {
         int from = currentPage * PAGE_SIZE;
         int to = Math.min(from + PAGE_SIZE, prodInv.size());
         grid.setItems(prodInv.subList(from, to));
+    }
+
+    // ---------------- REFRESH ----------------
+    private void search(String text) {
+
+        grid.addThemeVariants(
+                GridVariant.LUMO_ROW_STRIPES,
+                GridVariant.LUMO_COLUMN_BORDERS,
+                GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+                List<ProductDto>  filtered = prodInv.stream()
+                .filter(p -> text == null || text.isEmpty()
+                        || p.getProduct_title().toLowerCase().contains(text.toLowerCase())
+                        || p.getSku().contains(text))
+                .toList();
+
+        int from = currentPage * PAGE_SIZE;
+        int to = Math.min(from + PAGE_SIZE, filtered.size());
+
+        if (from > to) {
+            from = 0;
+            currentPage = 0;
+        }
+
+        grid.setItems(filtered.subList(from, to));
     }
 
     private void changePage(int delta) {

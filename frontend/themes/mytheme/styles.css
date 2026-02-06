@@ -55,3 +55,15 @@
     font-weight: 600;
     color: #333;
 }
+
+.stock-in {
+    background-color: #e8f5e9;
+}
+
+.stock-out {
+    background-color: #fdecea;
+}
+
+.stock-damage {
+    background-color: #fff3e0;
+}

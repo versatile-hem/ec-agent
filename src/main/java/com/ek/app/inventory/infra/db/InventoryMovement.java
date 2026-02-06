@@ -3,11 +3,15 @@ package com.ek.app.inventory.infra.db;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import com.ek.app.inventory.domain.InventoryType;
 import com.ek.app.productcatalog.db.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -33,7 +37,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InventoryMovement {
+@EntityListeners(AuditingEntityListener.class)
+public class InventoryMovement  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,5 +77,9 @@ public class InventoryMovement {
     @Enumerated(EnumType.STRING)
     @Column(name = "sales_channel")
     private SalesChannel salesChannel;
+
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    private String createdBy;
 
 }

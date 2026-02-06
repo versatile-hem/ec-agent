@@ -23,6 +23,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
+import jakarta.annotation.security.RolesAllowed;
+
+@RolesAllowed("ADMIN")
 @Route(value = "bill-book", layout = MainLayout.class)
 public class BillBookView extends VerticalLayout {
 

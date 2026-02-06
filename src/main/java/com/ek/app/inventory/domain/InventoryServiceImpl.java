@@ -1,5 +1,6 @@
 package com.ek.app.inventory.domain;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,24 +111,39 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public void updateStock(InventoryMovementDto movementDto, Long productId, Integer qty, InventoryType type) {
+
+        Optional<Product> op = this.productRepository.findById(productId);
+        Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(op.get());
+        
+       BigDecimal finalQty = ip.get().getOnHandQty();
         switch (type) {
             case IN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
+                finalQty = finalQty.add(BigDecimal.valueOf(qty));
                 break;
             case OUT:
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
+                finalQty = finalQty.subtract(BigDecimal.valueOf(qty));
+                break;
             case DAMAGE:
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
+                finalQty = finalQty.subtract(BigDecimal.valueOf(qty));
+                break;
             case RETURN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
+                finalQty = finalQty.add(BigDecimal.valueOf(qty));
+                break;
             case ADJUST:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty); 
+                finalQty = finalQty.add(BigDecimal.valueOf(qty));
                 break;
             default:
                 break;
         }
         movementDto.setProductId(productId);
         InventoryMovement  mov = dtoToEntity(movementDto);
+        mov.setProduct(op.get());
+        mov.setOnHandAfter(finalQty);
         this.inventoryRepository.save(mov);
         
     }
@@ -145,10 +161,6 @@ public class InventoryServiceImpl implements InventoryService {
         }
         InventoryMovement inventoryMovement = new InventoryMovement();
         BeanUtils.copyProperties(InventoryMovementDto, inventoryMovement);
-        Optional<Product> op = this.productRepository.findById(InventoryMovementDto.getProductId());
-        Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(op.get());
-        inventoryMovement.setProduct( op.get());
-        inventoryMovement.setOnHandAfter(ip.get().getOnHandQty());
         return inventoryMovement;
     }
 
@@ -160,6 +172,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryMovementDto> searchStockFlow(Long product_id) {
         org.springframework.data.domain.Pageable pageable = Pageable.ofSize(10);
+        
         Page<InventoryMovement> page = this.inventoryRepository.findByProduct_Id(product_id, pageable);
         return page.get().map(e -> {
             InventoryMovementDto dto = new InventoryMovementDto();

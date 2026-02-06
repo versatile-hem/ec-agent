@@ -27,9 +27,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RolesAllowed("ADMIN")
 @Route(value = "products", layout = MainLayout.class)
 public class ProductsView extends VerticalLayout {
 

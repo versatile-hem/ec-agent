@@ -15,7 +15,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
   InventoryMovement save(InventoryMovement item); // upsert by id
   // List<InventoryMovement> saveAll(List<InventoryItem> items);
 
-  @Query(value = "SELECT * FROM inventory_movement WHERE product_id = :productId", countQuery = "SELECT count(*) FROM inventory_movement WHERE product_id = :productId", nativeQuery = true)
+  @Query(value = "SELECT * FROM inventory_movement WHERE product_id = :productId ORDER BY movement_time DESC", countQuery = "SELECT count(*) FROM inventory_movement WHERE product_id = :productId", nativeQuery = true)
   Page<InventoryMovement> findByProduct_Id(Long productId, Pageable pageable);
 
   // --- Read ---
