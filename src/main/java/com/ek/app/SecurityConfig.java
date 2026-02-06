@@ -10,6 +10,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import com.ek.app.gui.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
+/**
+ * 
+ */
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
