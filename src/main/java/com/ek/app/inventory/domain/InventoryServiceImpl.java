@@ -14,8 +14,8 @@ import com.ek.app.inventory.infra.db.InventoryMovement;
 import com.ek.app.inventory.infra.db.InventoryMovementRepository;
 import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
-import com.ek.app.productcatalog.db.Product;
-import com.ek.app.productcatalog.db.ProductRepository;
+import com.ek.app.productcatalog.infra.db.Product;
+import com.ek.app.productcatalog.infra.db.ProductRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -110,42 +110,46 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void updateStock(InventoryMovementDto movementDto, Long productId, Integer qty, InventoryType type) {
+    public void updateStock(InventoryMovementDto movementDto) {
+        Product product = productRepository
+                .findById(movementDto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        Optional<Product> op = this.productRepository.findById(productId);
-        Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(op.get());
-        
-       BigDecimal finalQty = ip.get().getOnHandQty();
-        switch (type) {
+        Long productId = product.getProductId();
+        BigDecimal qty = movementDto.getQuantity();
+        Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(product);
+
+        BigDecimal finalQty = ip.get().getOnHandQty();
+        switch (movementDto.getMovementType()) {
             case IN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
-                finalQty = finalQty.add(BigDecimal.valueOf(qty));
+                finalQty = finalQty.add(qty);
                 break;
             case OUT:
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
-                finalQty = finalQty.subtract(BigDecimal.valueOf(qty));
+                finalQty = finalQty.subtract(qty);
                 break;
             case DAMAGE:
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
-                finalQty = finalQty.subtract(BigDecimal.valueOf(qty));
+                finalQty = finalQty.subtract(qty);
                 break;
             case RETURN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
-                finalQty = finalQty.add(BigDecimal.valueOf(qty));
+                finalQty = finalQty.add(qty);
                 break;
             case ADJUST:
-                this.inventoryPositionRepository.addOnHandQty(productId, qty); 
-                finalQty = finalQty.add(BigDecimal.valueOf(qty));
+                this.inventoryPositionRepository.addOnHandQty(productId, qty);
+                finalQty = finalQty.add(qty);
                 break;
             default:
                 break;
         }
         movementDto.setProductId(productId);
-        InventoryMovement  mov = dtoToEntity(movementDto);
-        mov.setProduct(op.get());
+        InventoryMovement mov = dtoToEntity(movementDto);
+        mov.setProduct(product);
         mov.setOnHandAfter(finalQty);
         this.inventoryRepository.save(mov);
-        
+
     }
 
     private InventoryMovementDto entityToDto(InventoryMovement InventoryMovement) {
@@ -172,7 +176,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryMovementDto> searchStockFlow(Long product_id) {
         org.springframework.data.domain.Pageable pageable = Pageable.ofSize(10);
-        
+
         Page<InventoryMovement> page = this.inventoryRepository.findByProduct_Id(product_id, pageable);
         return page.get().map(e -> {
             InventoryMovementDto dto = new InventoryMovementDto();
@@ -180,8 +184,5 @@ public class InventoryServiceImpl implements InventoryService {
             return dto;
         }).toList();
     }
-
-
-
 
 }

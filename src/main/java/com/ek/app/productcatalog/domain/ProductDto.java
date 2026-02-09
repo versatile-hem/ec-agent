@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog;
+package com.ek.app.productcatalog.domain;
 
 import java.math.BigDecimal;
 

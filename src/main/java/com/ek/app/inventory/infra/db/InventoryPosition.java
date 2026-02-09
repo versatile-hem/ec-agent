@@ -2,7 +2,7 @@ package com.ek.app.inventory.infra.db;
 
 import java.math.BigDecimal;
 
-import com.ek.app.productcatalog.db.Product;
+import com.ek.app.productcatalog.infra.db.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

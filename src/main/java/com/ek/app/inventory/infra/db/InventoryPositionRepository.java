@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.ek.app.productcatalog.db.Product;
+import com.ek.app.productcatalog.infra.db.Product;
 
 @Repository
 public interface InventoryPositionRepository extends JpaRepository<InventoryPosition, Long> {
@@ -23,7 +23,7 @@ public interface InventoryPositionRepository extends JpaRepository<InventoryPosi
                         WHERE product_id = :productId
                         """, nativeQuery = true)
         void addOnHandQty(@Param("productId") Long productId,
-                        @Param("stock") Integer stock);
+                        @Param("stock") BigDecimal stock);
 
         @Modifying
         @Query(value = """
@@ -32,5 +32,5 @@ public interface InventoryPositionRepository extends JpaRepository<InventoryPosi
                         WHERE product_id = :productId
                         """, nativeQuery = true)
         void removeOnHandQty(@Param("productId") Long productId,
-                        @Param("stock") Integer stock);
+                        @Param("stock") BigDecimal stock);
 }

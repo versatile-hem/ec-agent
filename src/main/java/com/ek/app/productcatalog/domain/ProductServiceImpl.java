@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog;
+package com.ek.app.productcatalog.domain;
 
 import java.util.List;
 
@@ -9,10 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
-import com.ek.app.productcatalog.db.Product;
-import com.ek.app.productcatalog.db.ProductRepository;
-import com.ek.app.productcatalog.dtos.CreateProductInput;
-import com.ek.app.productcatalog.dtos.UpdateProductInput;
+import com.ek.app.productcatalog.app.UpdateProductInput;
+import com.ek.app.productcatalog.infra.db.Product;
+import com.ek.app.productcatalog.infra.db.ProductRepository;
 import com.vaadin.flow.data.provider.DataProvider;
 
 @Service

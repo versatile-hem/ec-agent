@@ -12,7 +12,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.security.AuthenticationContext;
+import com.vaadin.flow.theme.Theme;
 
+//@Theme(value = "nextra")
 public class MainLayout extends AppLayout {
 
     @Autowired

@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog.db;
+package com.ek.app.productcatalog.infra.db;
 
 import java.util.ArrayList;
 import java.util.List;

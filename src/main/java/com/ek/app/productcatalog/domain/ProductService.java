@@ -1,10 +1,9 @@
-package com.ek.app.productcatalog;
+package com.ek.app.productcatalog.domain;
 
 import java.util.List;
 
-import com.ek.app.productcatalog.db.Product;
-import com.ek.app.productcatalog.dtos.CreateProductInput;
-import com.ek.app.productcatalog.dtos.UpdateProductInput;
+import com.ek.app.productcatalog.app.UpdateProductInput;
+import com.ek.app.productcatalog.infra.db.Product;
 
 public interface ProductService {
 

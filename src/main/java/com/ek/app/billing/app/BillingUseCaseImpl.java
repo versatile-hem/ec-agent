@@ -13,8 +13,8 @@ import com.ek.app.billing.domain.BillItemDTO;
 import com.ek.app.billing.infra.db.BillHeader;
 import com.ek.app.billing.infra.db.BillHeaderRepository;
 import com.ek.app.billing.infra.db.BillItem;
-import com.ek.app.productcatalog.db.Product;
-import com.ek.app.productcatalog.db.ProductRepository;
+import com.ek.app.productcatalog.infra.db.Product;
+import com.ek.app.productcatalog.infra.db.ProductRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;

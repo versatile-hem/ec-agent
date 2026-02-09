@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog;
+package com.ek.app.productcatalog.app;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ek.app.productcatalog.db.Product;
+import com.ek.app.productcatalog.domain.ProductDto;
+import com.ek.app.productcatalog.domain.ProductService;
+import com.ek.app.productcatalog.infra.db.Product;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 

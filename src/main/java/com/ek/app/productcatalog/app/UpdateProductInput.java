@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog.dtos;
+package com.ek.app.productcatalog.app;
 
 import lombok.Data;
 

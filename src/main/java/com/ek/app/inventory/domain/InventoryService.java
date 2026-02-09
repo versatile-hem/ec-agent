@@ -9,11 +9,21 @@ public interface InventoryService {
     
 
     InventoryMovementDto addInventory(InventoryMovementDto itemDto);
+
     InventoryMovementDto updateInventory(InventoryMovementDto itemDto);
 
-    void updateStock(InventoryMovementDto movementDto, Long productId, Integer qty, InventoryType type);
+    /**
+     * This method is intented to update the stock 
+     * 
+     * @param movementDto
+     * @param productId
+     * @param qty
+     * @param type
+     */
+    void updateStock(InventoryMovementDto movementDto);
 
     InventoryMovementDto getById(String id);
+
     List<InventoryMovementDto> listAll(int page, int size);
 
     List<InventoryMovementDto> search(String skuLike, String nameLike, String locationLike, Boolean active, int page, int size);
@@ -29,7 +39,11 @@ public interface InventoryService {
     // Idempotent add/upsert by SKU+location
     InventoryMovementDto upsertBySkuLocation(String sku, String name, String location, int qtyDelta, String uom, String metadata);
 
-    
+    /**
+     * Get available stock 
+     * @param product_id
+     * @return
+     */
     InventoryPosition findInventoryPosition(int product_id);
 
     /**

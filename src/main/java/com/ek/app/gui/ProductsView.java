@@ -7,8 +7,8 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ek.app.productcatalog.ProductDto;
-import com.ek.app.productcatalog.ProductService;
+import com.ek.app.productcatalog.domain.ProductDto;
+import com.ek.app.productcatalog.domain.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

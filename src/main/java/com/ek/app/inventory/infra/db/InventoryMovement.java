@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.ek.app.inventory.domain.InventoryType;
-import com.ek.app.productcatalog.db.Product;
+import com.ek.app.productcatalog.infra.db.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

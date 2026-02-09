@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog.db;
+package com.ek.app.productcatalog.infra.db;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

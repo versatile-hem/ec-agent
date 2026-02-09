@@ -1,4 +1,4 @@
-package com.ek.app.productcatalog;
+package com.ek.app.productcatalog.app;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,9 +8,10 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import com.ek.app.productcatalog.db.Product;
-import com.ek.app.productcatalog.dtos.CreateProductInput;
-import com.ek.app.productcatalog.dtos.UpdateProductInput;
+import com.ek.app.productcatalog.domain.CreateProductInput;
+import com.ek.app.productcatalog.domain.ProductDto;
+import com.ek.app.productcatalog.domain.ProductService;
+import com.ek.app.productcatalog.infra.db.Product;
 
 @Controller
 public class ProductGraphQLController {

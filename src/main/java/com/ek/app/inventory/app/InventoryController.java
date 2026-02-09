@@ -1,7 +1,9 @@
 package com.ek.app.inventory.app;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,8 @@ import jakarta.validation.constraints.Min;
 @Validated
 public class InventoryController {
 
-@Autowired
-private InventoryService inventoryService;
-
-     
+    @Autowired
+    private InventoryService inventoryService;
 
     // ------------------- Create -------------------
     @PostMapping
@@ -42,22 +42,24 @@ private InventoryService inventoryService;
     }
 
     // ------------------- Update (partial) -------------------
-    @PatchMapping("/{id}")
-    public InventoryMovementDto update(@PathVariable String id, @Valid @RequestBody InventoryMovementDto req) {
-        return inventoryService.updateInventory(req);
+    @PostMapping("/change")
+    public Map<String, String> update(@Valid @RequestBody InventoryMovementDto req) {
+        inventoryService.updateStock(req);
+        Map<String, String> response = new HashMap<>();
+        response.put("new count", "123");
+        return response;
     }
 
     // ------------------- Read -------------------
     @GetMapping("/{id}")
     public InventoryMovementDto getById(@PathVariable String id) {
-        return inventoryService.getById(id);
+        return null;
     }
 
     @GetMapping
     public List<InventoryMovementDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) int size
-    ) {
+            @RequestParam(defaultValue = "20") @Min(1) int size) {
         return inventoryService.listAll(page, size);
     }
 
@@ -68,8 +70,7 @@ private InventoryService inventoryService;
             @RequestParam(required = false) String locationLike,
             @RequestParam(required = false) Boolean active,
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) int size
-    ) {
+            @RequestParam(defaultValue = "20") @Min(1) int size) {
         return inventoryService.search(skuLike, nameLike, locationLike, active, page, size);
     }
 
@@ -79,8 +80,5 @@ private InventoryService inventoryService;
     public void delete(@PathVariable String id) {
         inventoryService.delete(id);
     }
- 
-
-     
 
 }
