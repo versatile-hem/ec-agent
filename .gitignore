@@ -1,2 +1,3 @@
 # Maven / Gradle build output
 target/
+node_modules/
