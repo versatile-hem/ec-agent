@@ -24,7 +24,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("login")
 @PageTitle("Sign in | NextraERP")
-@CssImport(value = "./themes/nextra/styles.css") // see section 3
 @AnonymousAllowed
 public class LoginView extends VerticalLayout {
 
