@@ -1,6 +1,7 @@
 package com.ek.app.inventory.domain;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ek.app.inventory.infra.db.InventoryPosition;
 
@@ -54,4 +55,5 @@ public interface InventoryService {
     List<InventoryMovementDto> searchStockFlow(Long product_id);
 
 
+     Map<String, String> getInventoryDashboard();   
 }

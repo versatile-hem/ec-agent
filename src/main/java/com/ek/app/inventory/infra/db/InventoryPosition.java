@@ -1,6 +1,7 @@
 package com.ek.app.inventory.infra.db;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.ek.app.productcatalog.infra.db.Product;
 
@@ -37,9 +38,16 @@ public class InventoryPosition {
 	@JoinColumn(name = "product_id", nullable = false)
 	private Product product;
  
-	@Column(name = "on_hand_qty", precision = 18, scale = 6, nullable = false)
+	@Column(name = "on_hand_qty", precision = 18, scale = 2, nullable = false)
 	private BigDecimal onHandQty = BigDecimal.ZERO;
 
-	@Column(name = "reserved_qty", precision = 18, scale = 6, nullable = false)
+	@Column(name = "avg_cost", precision = 18, scale = 2)
+	private BigDecimal avgCost = BigDecimal.ZERO;
+
+	
+	@Column(name = "reserved_qty", precision = 18, scale = 2 )
 	private BigDecimal reservedQty = BigDecimal.ZERO;
+
+	@Column(name = "last_modifed_on" )
+    private LocalDateTime lastModifiedOn = LocalDateTime.now();
 }

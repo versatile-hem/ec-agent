@@ -5,9 +5,11 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,6 +29,8 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -66,19 +70,49 @@ public class InventoryView extends VerticalLayout {
         Button next = new Button("Next", e -> changePage(1));
         Div pager = new Div(prev, next);
         pager.getStyle().set("display", "flex").set("gap", "10px");
-        add(buildHeader(), buildGrid(), pager);
+        add(buildInvDash(), buildHeader(), buildGrid(), pager);
         refresh();
+    }
+    // ---------------- HEADER ----------------
+    private Component buildInvDash() {
+        HorizontalLayout cardsLayout = new HorizontalLayout();
+        cardsLayout.setWidthFull();
+        cardsLayout.setSpacing(true);
+
+        Map<String, String> dash = this.inventoryService.getInventoryDashboard();
+
+        // Card 1 - Stock Value / Amount
+        Div stockValueCard = createCard(
+                "Stock Value",
+                "₹ "+dash.get("totalStockValue")
+        );
+
+        // Card 2 - Low Stocks
+        Div lowStockCard = createCard(
+                "Low Stocks",
+                dash.get("outOfStock")+" Items"
+        );
+
+        // Card 3 - Fast Moving
+        Div fastMovingCard = createCard(
+                "Fast Moving",
+                "12 Products"
+        );
+         cardsLayout.add(stockValueCard, lowStockCard, fastMovingCard);
+        return cardsLayout;
     }
 
     // ---------------- HEADER ----------------
     private Component buildHeader() {
+        Div heaDiv = new Div();
         TextField search = new TextField();
         search.setPlaceholder("Search SKU / Product");
         Button refresh = new Button("Search", e -> search(search.getValue()));
         HorizontalLayout header = new HorizontalLayout(search, refresh);
         header.setWidthFull();
         header.setAlignItems(Alignment.END);
-        return header;
+        heaDiv.add(header);
+        return heaDiv;
     }
 
     // ---------------- GRID ----------------
@@ -159,9 +193,11 @@ public class InventoryView extends VerticalLayout {
     private void openLastTxb(ProductDto dto) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(dto.getProduct_title());
+        dialog.setWidth("80%");
         Div div = new Div();
         div.add("current stock : " + dto.getAvailableStock());
         Grid<InventoryMovementDto> grid = new Grid<>(InventoryMovementDto.class, false);
+        grid.setWidthFull();
         grid.addColumn(InventoryMovementDto::getMovementType).setHeader("Stock In/Out");
         grid.addColumn(im -> {
             String icon = "";
@@ -193,7 +229,21 @@ public class InventoryView extends VerticalLayout {
         // Qty") ;
         grid.addColumn(InventoryMovementDto::getSalesChannel).setHeader("channel");
         grid.addColumn(InventoryMovementDto::getReference).setHeader("reference");
-        grid.addColumn(InventoryMovementDto::getMovementTime).setHeader("Timestamp");
+        DateTimeFormatter formatter =
+        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        grid.addColumn(im ->
+                im.getMovementTime().format(formatter))
+            .setHeader("Movement Time ")
+            .setAutoWidth(true);
+
+        grid.addColumn(im ->
+                im.getCreatedAt().format(formatter))
+            .setHeader("DB Entry Time ")
+            .setAutoWidth(true);
+
+
+
+       // grid.addColumn(InventoryMovementDto::getMovementTime).setAutoWidth(isAttached()).setHeader("Timestamp");
         List<InventoryMovementDto> stockMove = inventoryService.searchStockFlow(dto.getProductId());
         grid.setItems(stockMove);
         dialog.add(div);
@@ -226,6 +276,7 @@ public class InventoryView extends VerticalLayout {
             stockMovementDto.setQuantity(BigDecimal.valueOf(qty.getValue()));
             stockMovementDto.setMovementType(type);
             stockMovementDto.setSalesChannel(salesChannel.getValue());
+            stockMovementDto.setProductId(dto.getProductId());
             inventoryService.updateStock(stockMovementDto);
             dialog.close();
             refresh();
@@ -276,6 +327,18 @@ public class InventoryView extends VerticalLayout {
         int maxPage = prodInv.size() / PAGE_SIZE;
         currentPage = Math.max(0, Math.min(currentPage + delta, maxPage));
         refresh();
+    }
+
+     private Div createCard(String title, String value) {
+        Div card = new Div();
+        card.addClassName("dashboard-card");
+
+        H3 heading = new H3(title);
+        Span data = new Span(value);
+        data.addClassName("card-value");
+
+        card.add(heading, data);
+        return card;
     }
 
 }

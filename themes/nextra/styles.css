@@ -191,3 +191,18 @@ button.primary:hover {
     align-items: center;
     justify-content: center;
 }
+
+.dashboard-card {
+  background: linear-gradient(135deg, var(--lumo-primary-color-10pct), var(--lumo-base-color));
+  border-radius: 14px;
+  padding: 1.8rem;
+  box-shadow: var(--lumo-box-shadow-s);
+  border-left: 6px solid var(--lumo-primary-color);
+}
+
+.card-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--lumo-primary-color);
+  letter-spacing: -0.5px;
+}

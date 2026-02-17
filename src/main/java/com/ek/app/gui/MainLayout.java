@@ -14,6 +14,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.Theme;
 
+
 //@Theme(value = "nextra")
 public class MainLayout extends AppLayout {
 
@@ -27,12 +28,16 @@ public class MainLayout extends AppLayout {
         RouterLink inventory = new RouterLink("Inventory", InventoryView.class);
         RouterLink reports = new RouterLink("Reports", ReportsView.class);
         RouterLink billBook = new RouterLink("Bill Book", BillBookView.class);
+        
         HorizontalLayout nav = new HorizontalLayout(home, products, inventory,
                 billBook, reports);
 
         home.addClassName("nav-link");
         products.addClassName("nav-link");
         inventory.addClassName("nav-link");
+        billBook.addClassName("nav-link");
+        reports.addClassName("nav-link");
+        
         nav.getStyle().set("gap", "20px");
 
         // RIGHT USER AREA

@@ -1,7 +1,10 @@
 package com.ek.app.inventory.domain;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -183,6 +186,20 @@ public class InventoryServiceImpl implements InventoryService {
             BeanUtils.copyProperties(e, dto);
             return dto;
         }).toList();
+    }
+
+    @Override
+    public Map<String, String> getInventoryDashboard() {
+        Map<String, String> dashboard = new HashMap<>();
+
+        BigDecimal totalStockValue = this.inventoryPositionRepository.getTotalStockValue();
+        DecimalFormat df = new DecimalFormat("#.00");
+        dashboard.put("totalStockValue", df.format(totalStockValue));
+
+        Long countLess = this.inventoryPositionRepository.countByOnHandQtyLessThan(BigDecimal.valueOf(10l));
+        dashboard.put("outOfStock", df.format(countLess));
+
+        return dashboard;
     }
 
 }
