@@ -193,11 +193,12 @@ public class InventoryServiceImpl implements InventoryService {
         Map<String, String> dashboard = new HashMap<>();
 
         BigDecimal totalStockValue = this.inventoryPositionRepository.getTotalStockValue();
-        DecimalFormat df = new DecimalFormat("#.00");
+        DecimalFormat df = new DecimalFormat("#,##,##0.00");
         dashboard.put("totalStockValue", df.format(totalStockValue));
 
         Long countLess = this.inventoryPositionRepository.countByOnHandQtyLessThan(BigDecimal.valueOf(10l));
-        dashboard.put("outOfStock", df.format(countLess));
+        DecimalFormat df1 = new DecimalFormat("##0");
+        dashboard.put("outOfStock", df1.format(countLess));
 
         return dashboard;
     }

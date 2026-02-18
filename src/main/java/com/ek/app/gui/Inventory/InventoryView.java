@@ -1,4 +1,4 @@
-package com.ek.app.gui;
+package com.ek.app.gui.Inventory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ek.app.gui.MainLayout;
 import com.ek.app.inventory.domain.InventoryMovementDto;
 import com.ek.app.inventory.domain.InventoryService;
 import com.ek.app.inventory.domain.InventoryType;
@@ -73,6 +74,8 @@ public class InventoryView extends VerticalLayout {
         add(buildInvDash(), buildHeader(), buildGrid(), pager);
         refresh();
     }
+
+    
     // ---------------- HEADER ----------------
     private Component buildInvDash() {
         HorizontalLayout cardsLayout = new HorizontalLayout();

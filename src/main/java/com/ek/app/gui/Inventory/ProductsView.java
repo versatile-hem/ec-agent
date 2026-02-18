@@ -1,4 +1,4 @@
-package com.ek.app.gui;
+package com.ek.app.gui.Inventory;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ek.app.gui.MainLayout;
 import com.ek.app.productcatalog.domain.ProductDto;
 import com.ek.app.productcatalog.domain.ProductService;
 import com.vaadin.flow.component.button.Button;
