@@ -44,10 +44,9 @@ public class InventoryPosition {
 	@Column(name = "avg_cost", precision = 18, scale = 2)
 	private BigDecimal avgCost = BigDecimal.ZERO;
 
-	
-	@Column(name = "reserved_qty", precision = 18, scale = 2 )
+	@Column(name = "reserved_qty", precision = 18, scale = 2)
 	private BigDecimal reservedQty = BigDecimal.ZERO;
 
-	@Column(name = "last_modifed_on" )
-    private LocalDateTime lastModifiedOn = LocalDateTime.now();
+	@Column(name = "last_modifed_on")
+	private LocalDateTime lastModifiedOn = LocalDateTime.now();
 }

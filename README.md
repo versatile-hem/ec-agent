@@ -25,6 +25,7 @@ This starter project is a Spring Boot application that:
 - For TSC printers, if PDFs do not print correctly, consider converting PDF to image or sending TSPL commands.
 - For USB printers on servers, ensure the JVM has access to the local print spooler and the printer drivers are installed.
 # ec-agent
+<<<<<<< HEAD
 
 
 
@@ -170,3 +171,5 @@ Supplier Ledger
 - Financial Year Setup
 - Backup & Restore
 - Audit Log
+=======
+>>>>>>> 23abb2f (first commit from omibook)

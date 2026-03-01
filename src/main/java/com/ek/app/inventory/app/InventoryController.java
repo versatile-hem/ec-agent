@@ -53,7 +53,7 @@ public class InventoryController {
     // ------------------- Read -------------------
     @GetMapping("/{id}")
     public InventoryMovementDto getById(@PathVariable String id) {
-        return null;
+        return inventoryService.getById(id);
     }
 
     @GetMapping

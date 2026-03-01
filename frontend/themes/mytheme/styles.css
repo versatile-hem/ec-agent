@@ -1,0 +1,57 @@
+/* Page background */
+.main-view {
+    background-color: #fffef2; /* soft light yellow */
+    padding: 20px;
+}
+
+/* Header / Navbar */
+.app-header {
+    background: #e3f6e3; /* light green */
+    padding: 12px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Navigation links */
+.nav-link {
+    color: #333;
+    font-weight: 500;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+.nav-link:hover {
+    color: #2e7d32;
+}
+
+/* Grid container */
+.inventory-grid {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 10px;
+}
+
+/* Buttons */
+.action-btn {
+    background: #e3f6e3;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.action-btn-secondary {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* Pager buttons */
+.pager-btn {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+}
+
+/* Titles */
+.page-title {
+    font-weight: 600;
+    color: #333;
+}
