@@ -2,6 +2,7 @@ package com.ek.app;
 
 import java.util.Optional;
 
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -25,5 +26,11 @@ public class FlipkartLabelAgentApplication {
                         .getName());
     }
 
-
+    @Bean
+public GroupedOpenApi billApi() {
+    return GroupedOpenApi.builder()
+            .group("billing")
+            .pathsToMatch("/api/bill/**")
+            .build();
+}
 }

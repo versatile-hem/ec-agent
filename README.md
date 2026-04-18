@@ -24,6 +24,36 @@ This starter project is a Spring Boot application that:
 - Flipkart API endpoints in `FlipkartClient` are placeholders; replace with actual endpoints from Flipkart Seller API docs.
 - For TSC printers, if PDFs do not print correctly, consider converting PDF to image or sending TSPL commands.
 - For USB printers on servers, ensure the JVM has access to the local print spooler and the printer drivers are installed.
+
+## MCP API (OpenAI)
+
+Set OpenAI API key before running:
+
+```bash
+export OPENAI_API_KEY=your_openai_api_key
+```
+
+Chat endpoint:
+
+```bash
+curl --noproxy '*' -sS -X POST 'http://127.0.0.1:80/api/mcp/chat' \
+   -H 'Content-Type: application/json' \
+   -d '{"prompt":"Say hello in one line"}'
+```
+
+Structured data endpoint:
+
+```bash
+curl --noproxy '*' -sS -X POST 'http://127.0.0.1:80/api/mcp/structured-data' \
+   -H 'Content-Type: application/json' \
+   -d '{"prompt":"Return JSON with fields title, priority, etaDays"}'
+```
+
+Expected behavior:
+- `/api/mcp/chat` returns JSON with `prompt` and `response`.
+- `/api/mcp/structured-data` returns model-generated JSON object.
+
+If you receive redirect to `/login`, update security to permit `/api/mcp/**` for unauthenticated access.
 # ec-agent
 <<<<<<< HEAD
 

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        .header { text-align: center; font-size: 18px; font-weight: bold; }
+        .section { margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .right { text-align: right; }
+    </style>
+</head>
+
+<body>
+
+<div class="header">TAX INVOICE</div>
+
+<div class="section">
+    <b>Bill No:</b> INV-1200<br/>
+    <b>Date:</b> 2026-04-17T14:30<br/>
+</div>
+
+<div class="section">
+    <b>Customer:</b> Rahul Sharma<br/>
+    <b>Phone:</b> 9876543210<br/>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Taxable</th>
+            <th>GST %</th>
+            <th>Tax</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>Sample Item</td>
+            <td></td>
+            <td>2</td>
+            <td class="right">250</td>
+            <td class="right">500</td>
+            <td class="right">18</td>
+            <td class="right">54</td>
+            <td class="right">554</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="section">
+    <table>
+        <tr>
+            <td>Subtotal</td>
+            <td class="right">500</td>
+        </tr>
+        <tr>
+            <td>Tax</td>
+            <td class="right">54</td>
+        </tr>
+        <tr>
+            <td>Discount</td>
+            <td class="right">20</td>
+        </tr>
+        <tr>
+            <td><b>Total</b></td>
+            <td class="right"><b>534</b></td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <b>Payment Mode:</b> UPI<br/>
+    <b>Status:</b> PAID<br/>
+</div>
+
+</body>
+</html>
