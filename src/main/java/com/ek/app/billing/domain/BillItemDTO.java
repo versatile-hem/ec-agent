@@ -2,6 +2,7 @@ package com.ek.app.billing.domain;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,19 @@ import lombok.NoArgsConstructor;
 public class BillItemDTO {
 
     private Long productId;
+
+    @Schema(example = "Industrial Label Roll")
     private String productName;
 
+    @Schema(example = "2")
     private BigDecimal quantity;
+
+    @Schema(example = "600")
     private BigDecimal unitPrice;
+
     private BigDecimal lineTotal;
 
+    @Schema(example = "SKU-1001")
     private String sku;
 
     private String product_title;
@@ -43,5 +51,7 @@ public class BillItemDTO {
     private BigDecimal tax ;
 
     private BigDecimal finalAmount;
+
+    
 
 }
