@@ -33,4 +33,12 @@ public interface InventoryPositionRepository extends JpaRepository<InventoryPosi
                         """, nativeQuery = true)
         void removeOnHandQty(@Param("productId") Long productId,
                         @Param("stock") BigDecimal stock);
+
+        @Query(value = "SELECT COALESCE(SUM(avg_cost * on_hand_qty), 0) " +
+                        "FROM inventory_position", nativeQuery = true)
+        BigDecimal getTotalStockValue();
+        
+
+        @Query(value = "select count(1) from inventory_position ip where ip.on_hand_qty < :qty", nativeQuery = true)
+        long countByOnHandQtyLessThan(@Param("qty") BigDecimal qty);
 }

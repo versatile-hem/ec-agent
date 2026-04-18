@@ -1,7 +1,10 @@
 package com.ek.app.inventory.domain;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -16,7 +19,6 @@ import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
-
 import jakarta.transaction.Transactional;
 
 @Service
@@ -115,7 +117,7 @@ public class InventoryServiceImpl implements InventoryService {
                 .findById(movementDto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        Long productId = product.getProductId();
+        Long productId = product.getId();
         BigDecimal qty = movementDto.getQuantity();
         Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(product);
 
@@ -149,7 +151,6 @@ public class InventoryServiceImpl implements InventoryService {
         mov.setProduct(product);
         mov.setOnHandAfter(finalQty);
         this.inventoryRepository.save(mov);
-
     }
 
     private InventoryMovementDto entityToDto(InventoryMovement InventoryMovement) {
@@ -165,6 +166,7 @@ public class InventoryServiceImpl implements InventoryService {
         }
         InventoryMovement inventoryMovement = new InventoryMovement();
         BeanUtils.copyProperties(InventoryMovementDto, inventoryMovement);
+        inventoryMovement.setProduct(this.productRepository.findById(InventoryMovementDto.getProductId()).orElseThrow());
         return inventoryMovement;
     }
 
@@ -176,13 +178,24 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryMovementDto> searchStockFlow(Long product_id) {
         org.springframework.data.domain.Pageable pageable = Pageable.ofSize(10);
-
         Page<InventoryMovement> page = this.inventoryRepository.findByProduct_Id(product_id, pageable);
-        return page.get().map(e -> {
+        return page.getContent().stream().map(e -> {
             InventoryMovementDto dto = new InventoryMovementDto();
             BeanUtils.copyProperties(e, dto);
             return dto;
         }).toList();
+    }
+
+    @Override
+    public Map<String, String> getInventoryDashboard() {
+        Map<String, String> dashboard = new HashMap<>();
+        BigDecimal totalStockValue = this.inventoryPositionRepository.getTotalStockValue();
+        DecimalFormat df = new DecimalFormat("#,##,##0.00");
+        dashboard.put("totalStockValue", df.format(totalStockValue));
+        Long countLess = this.inventoryPositionRepository.countByOnHandQtyLessThan(BigDecimal.valueOf(10L));
+        DecimalFormat df1 = new DecimalFormat("##0");
+        dashboard.put("outOfStock", df1.format(countLess));
+        return dashboard;
     }
 
 }

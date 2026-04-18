@@ -12,12 +12,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
-// @Theme("mytheme")
 public class FlipkartLabelAgentApplication {
     public static void main(String[] args) {
         SpringApplication.run(FlipkartLabelAgentApplication.class, args);
     }
 
+    
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> Optional.ofNullable(

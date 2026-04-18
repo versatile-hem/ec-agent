@@ -7,8 +7,8 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ek.app.productcatalog.domain.ProductDto;
-import com.ek.app.productcatalog.domain.ProductService;
+import com.ek.app.productcatalog.ProductDto;
+import com.ek.app.productcatalog.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,11 +27,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
-import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RolesAllowed("ADMIN")
 @Route(value = "products", layout = MainLayout.class)
 public class ProductsView extends VerticalLayout {
 

@@ -1,7 +1,5 @@
 package com.ek.app.gui;
 
-
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -13,19 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RolesAllowed("ADMIN")
 @Route(value = "home", layout = MainLayout.class)
-public class HomeView  extends VerticalLayout{
+public class HomeView extends VerticalLayout {
 
     public HomeView() {
-
-          Div visitors = new Div();
-            visitors.add(new H3("Visitors"));
-            
-            
-
-            add(visitors);
+        Div visitors = new Div();
+        visitors.add(new H3("Visitors"));
+        add(visitors);
     }
- 
 
-    
 }
-
