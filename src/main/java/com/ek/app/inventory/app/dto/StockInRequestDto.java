@@ -1,4 +1,4 @@
-package com.ek.app.nexo.dto;
+package com.ek.app.inventory.app.dto;
 
 import java.math.BigDecimal;
 
@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class StockInRequestDTO {
+public class StockInRequestDto {
 
     @NotNull
     private Long productId;
@@ -23,6 +23,4 @@ public class StockInRequestDTO {
     private String supplier;
 
     private String batchNumber;
-
-    private String warehouseId;
 }

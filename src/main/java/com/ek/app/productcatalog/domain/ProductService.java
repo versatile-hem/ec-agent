@@ -23,4 +23,10 @@ public interface ProductService {
 
     ProductDto addProduct(ProductDto product);
 
+    ProductDto getProductDtoById(Long productId);
+
+    ProductDto getProductByBarcode(String barcode);
+
+    ProductDto updateProduct(Long productId, ProductDto product);
+
 }

@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.ek.app.api.dto.ApiErrorResponse;
-import com.ek.app.nexo.exception.InsufficientStockException;
-import com.ek.app.nexo.exception.ResourceNotFoundException;
+import com.ek.app.inventory.domain.InsufficientStockException;
+import com.ek.app.inventory.domain.ResourceNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

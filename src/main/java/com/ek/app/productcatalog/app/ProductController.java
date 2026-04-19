@@ -1,24 +1,26 @@
 package com.ek.app.productcatalog.app;
 
 import java.util.List;
-import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ek.app.productcatalog.domain.ProductDto;
 import com.ek.app.productcatalog.domain.ProductService;
-import com.ek.app.productcatalog.infra.db.Product;
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/legacy/products")
+@RequestMapping("/api/products")
 @Tag(name = "User API", description = "Product management endpoints")
 public class ProductController {
 
@@ -28,27 +30,34 @@ public class ProductController {
         this.service = service;
     }
 
-    // 1️⃣ Add Product
+    @GetMapping
+    public List<ProductDto> getAllProducts() {
+        return service.listAll();
+    }
+
     @PostMapping
-    public ProductDto addProduct(@RequestBody ProductDto product) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductDto addProduct(@Valid @RequestBody ProductDto product) {
         return service.addProduct(product);
     }
 
-    // 2️⃣ Get Product by ID
     @GetMapping("/{id}")
-    public Product getProduct(@PathVariable Long id) {
-        return service.getProductById(id);
+    public ProductDto getProduct(@PathVariable Long id) {
+        return service.getProductDtoById(id);
     }
 
-    // 3️⃣ Search Product by Name
-    @GetMapping("/search")
-    public List<Product> searchProduct(@RequestParam String name) {
-        return service.searchByName(name);
+    @GetMapping("/barcode/{barcode}")
+    public ProductDto getByBarcode(@PathVariable String barcode) {
+        return service.getProductByBarcode(barcode);
     }
-    
- // 3️⃣ Search Product by Name
-    @PostMapping("/list")
-    public List<Product> listProduct(@RequestParam String name) {
+
+    @PutMapping("/{id}")
+    public ProductDto update(@PathVariable Long id, @Valid @RequestBody ProductDto product) {
+        return service.updateProduct(id, product);
+    }
+
+    @GetMapping("/search")
+    public List<?> searchProduct(@RequestParam String name) {
         return service.searchByName(name);
     }
 }

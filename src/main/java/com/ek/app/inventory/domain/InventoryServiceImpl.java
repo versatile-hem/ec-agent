@@ -115,23 +115,42 @@ public class InventoryServiceImpl implements InventoryService {
     public void updateStock(InventoryMovementDto movementDto) {
         Product product = productRepository
                 .findById(movementDto.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         Long productId = product.getProductId();
         BigDecimal qty = movementDto.getQuantity();
         Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(product);
 
-        BigDecimal finalQty = ip.get().getOnHandQty();
+        if (qty == null || qty.signum() <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+
+        InventoryPosition currentPosition = ip.orElseGet(() -> {
+            InventoryPosition created = new InventoryPosition();
+            created.setProduct(product);
+            created.setOnHandQty(BigDecimal.ZERO);
+            created.setReservedQty(BigDecimal.ZERO);
+            created.setAvgCost(BigDecimal.ZERO);
+            return inventoryPositionRepository.save(created);
+        });
+
+        BigDecimal finalQty = currentPosition.getOnHandQty();
         switch (movementDto.getMovementType()) {
             case IN:
                 this.inventoryPositionRepository.addOnHandQty(productId, qty);
                 finalQty = finalQty.add(qty);
                 break;
             case OUT:
+                if (finalQty.compareTo(qty) < 0) {
+                    throw new InsufficientStockException("Insufficient quantity for productId=" + productId);
+                }
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
                 finalQty = finalQty.subtract(qty);
                 break;
             case DAMAGE:
+                if (finalQty.compareTo(qty) < 0) {
+                    throw new InsufficientStockException("Insufficient quantity for productId=" + productId);
+                }
                 this.inventoryPositionRepository.removeOnHandQty(productId, qty);
                 finalQty = finalQty.subtract(qty);
                 break;
@@ -162,17 +181,22 @@ public class InventoryServiceImpl implements InventoryService {
 
     private InventoryMovement dtoToEntity(InventoryMovementDto InventoryMovementDto) {
         if (InventoryMovementDto.getProductId() == null) {
-            throw new RuntimeException("Product Id missing");
+            throw new IllegalArgumentException("Product Id missing");
         }
         InventoryMovement inventoryMovement = new InventoryMovement();
         BeanUtils.copyProperties(InventoryMovementDto, inventoryMovement);
-        inventoryMovement.setProduct(this.productRepository.findById(InventoryMovementDto.getProductId()).orElseThrow());
+        inventoryMovement
+                .setProduct(this.productRepository.findById(InventoryMovementDto.getProductId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Product not found")));
         return inventoryMovement;
     }
 
     @Override
     public InventoryPosition findInventoryPosition(int product_id) {
-        throw new UnsupportedOperationException("Unimplemented method 'findInventoryPosition'");
+        Product product = this.productRepository.findById((long) product_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return this.inventoryPositionRepository.findByProduct(product)
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found for product"));
     }
 
     @Override

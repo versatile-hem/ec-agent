@@ -1,9 +1,8 @@
-package com.ek.app.nexo.dto;
+package com.ek.app.inventory.app.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
-import com.ek.app.nexo.entity.DailyOperationType;
+import com.ek.app.inventory.infra.db.SalesChannel;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -11,12 +10,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class DailyOperationDTO {
+public class DailyOperationRequestDto {
 
-    private Long id;
+    public enum OperationType {
+        ORDER,
+        RETURN
+    }
 
     @NotNull
-    private DailyOperationType type;
+    private OperationType type;
 
     @NotNull
     private Long productId;
@@ -30,13 +32,5 @@ public class DailyOperationDTO {
 
     private String courier;
 
-    private String channel;
-
-    private String warehouseId;
-
-    private String createdBy;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
+    private SalesChannel channel;
 }

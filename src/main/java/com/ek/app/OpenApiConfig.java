@@ -44,7 +44,7 @@ public class OpenApiConfig {
 	public GroupedOpenApi productsApi() {
 		return GroupedOpenApi.builder()
 				.group("products")
-				.pathsToMatch("/api/products/**", "/api/legacy/products/**")
+				.pathsToMatch("/api/products/**")
 				.build();
 	}
 
