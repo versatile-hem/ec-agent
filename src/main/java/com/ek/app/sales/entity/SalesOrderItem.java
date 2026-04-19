@@ -40,6 +40,24 @@ public class SalesOrderItem {
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "base_amount", precision = 18, scale = 2)
+    private BigDecimal baseAmount;
+
+    @Column(name = "gst_rate", precision = 6, scale = 2)
+    private BigDecimal gstRate;
+
+    @Column(name = "gst_amount", precision = 18, scale = 2)
+    private BigDecimal gstAmount;
+
+    @Column(name = "cgst_amount", precision = 18, scale = 2)
+    private BigDecimal cgstAmount;
+
+    @Column(name = "sgst_amount", precision = 18, scale = 2)
+    private BigDecimal sgstAmount;
+
+    @Column(name = "igst_amount", precision = 18, scale = 2)
+    private BigDecimal igstAmount;
+
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal total;
 }
