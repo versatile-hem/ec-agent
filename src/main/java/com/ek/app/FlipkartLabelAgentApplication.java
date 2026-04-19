@@ -20,7 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
     "com.ek.app.billing.infra.db",
     "com.ek.app.inventory.infra.db",
     "com.ek.app.productcatalog.infra.db",
-    "com.ek.app.customer.entity"
+    "com.ek.app.customer.entity",
+    "com.ek.app.sales.entity"
 })
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class FlipkartLabelAgentApplication {
