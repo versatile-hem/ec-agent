@@ -19,7 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @EntityScan(basePackages = {
     "com.ek.app.billing.infra.db",
     "com.ek.app.inventory.infra.db",
-    "com.ek.app.productcatalog.infra.db"
+    "com.ek.app.productcatalog.infra.db",
+    "com.ek.app.customer.entity"
 })
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class FlipkartLabelAgentApplication {

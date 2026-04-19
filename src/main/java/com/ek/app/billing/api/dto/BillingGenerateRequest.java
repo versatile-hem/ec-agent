@@ -18,12 +18,13 @@ public class BillingGenerateRequest {
     @NotBlank(message = "billNo is required")
     private String billNo;
 
+    @Schema(example = "1")
+    private Long customerId;
+
     @Schema(example = "V1 Customer")
-    @NotBlank(message = "customerName is required")
     private String customerName;
 
     @Schema(example = "9999999999")
-    @NotBlank(message = "customerPhone is required")
     private String customerPhone;
 
     @Schema(example = "2026-04-17T19:45:00")

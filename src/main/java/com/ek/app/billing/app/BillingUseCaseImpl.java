@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import com.ek.app.billing.domain.BillItemDTO;
 import com.ek.app.billing.infra.db.BillHeader;
 import com.ek.app.billing.infra.db.BillHeaderRepository;
 import com.ek.app.billing.infra.db.BillItem;
+import com.ek.app.customer.entity.Customer;
+import com.ek.app.customer.repository.CustomerRepository;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -45,6 +48,12 @@ public class BillingUseCaseImpl implements BillingUseCase {
 
     @Autowired
     private ProductRepository productRepo;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Value("${company.state:Haryana}")
+    private String companyState;
 
     @Transactional
     @Override
@@ -83,6 +92,8 @@ public class BillingUseCaseImpl implements BillingUseCase {
         BillHeader bill = new BillHeader();
         BeanUtils.copyProperties(dto, bill);
 
+        resolveCustomerContext(dto, bill);
+
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bill items are required");
         }
@@ -109,7 +120,7 @@ public class BillingUseCaseImpl implements BillingUseCase {
             BigDecimal gst = resolveGstRateFromTaxCode(product);
  
             BigDecimal taxableValue = unitPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP);
-            BigDecimal tax = taxableValue.multiply(gst).divide(HUNDRED, 2, RoundingMode.HALF_UP);
+            BigDecimal tax = computeTaxByState(taxableValue, gst, bill.getCustomerState());
             BigDecimal finalAmount = taxableValue.add(tax).setScale(2, RoundingMode.HALF_UP);
 
             item.setProductId(product.getProductId());
@@ -245,6 +256,9 @@ public class BillingUseCaseImpl implements BillingUseCase {
         dto.setId(header.getId());
         dto.setBillNo(header.getBillNo());
         dto.setCustomerName(header.getCustomerName());
+        dto.setCustomerId(header.getCustomerId());
+        dto.setCustomerGstin(header.getCustomerGstin());
+        dto.setCustomerState(header.getCustomerState());
         dto.setCustomerPhone(header.getCustomerPhone());
         dto.setBillDate(header.getBillDate());
         dto.setSubtotal(header.getSubtotal());
@@ -309,5 +323,50 @@ public class BillingUseCaseImpl implements BillingUseCase {
         }
 
         return gstRate;
+    }
+
+    private void resolveCustomerContext(BillHeaderDTO dto, BillHeader bill) {
+        if (dto.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Customer not found: " + dto.getCustomerId()));
+            bill.setCustomerId(customer.getId());
+            bill.setCustomerName(customer.getName());
+            bill.setCustomerPhone(customer.getPhone());
+            bill.setCustomerGstin(customer.getGstin());
+            bill.setCustomerState(customer.getState());
+
+            dto.setCustomerName(customer.getName());
+            dto.setCustomerPhone(customer.getPhone());
+            dto.setCustomerGstin(customer.getGstin());
+            dto.setCustomerState(customer.getState());
+            return;
+        }
+
+        if (dto.getCustomerName() == null || dto.getCustomerName().isBlank()
+                || dto.getCustomerPhone() == null || dto.getCustomerPhone().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Either customerId or both customerName and customerPhone are required");
+        }
+
+        bill.setCustomerName(dto.getCustomerName());
+        bill.setCustomerPhone(dto.getCustomerPhone());
+        bill.setCustomerState(dto.getCustomerState());
+        bill.setCustomerGstin(dto.getCustomerGstin());
+    }
+
+    private BigDecimal computeTaxByState(BigDecimal taxableValue, BigDecimal gstRate, String customerState) {
+        if (customerState == null || customerState.isBlank() || companyState == null || companyState.isBlank()) {
+            return taxableValue.multiply(gstRate).divide(HUNDRED, 2, RoundingMode.HALF_UP);
+        }
+
+        if (companyState.equalsIgnoreCase(customerState.trim())) {
+            BigDecimal halfRate = gstRate.divide(new BigDecimal("2"), 4, RoundingMode.HALF_UP);
+            BigDecimal cgst = taxableValue.multiply(halfRate).divide(HUNDRED, 2, RoundingMode.HALF_UP);
+            BigDecimal sgst = taxableValue.multiply(halfRate).divide(HUNDRED, 2, RoundingMode.HALF_UP);
+            return cgst.add(sgst);
+        }
+
+        return taxableValue.multiply(gstRate).divide(HUNDRED, 2, RoundingMode.HALF_UP);
     }
 }

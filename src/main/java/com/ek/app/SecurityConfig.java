@@ -30,6 +30,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/customers/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
+                .requestMatchers(HttpMethod.POST, "/api/customers/**").hasRole("ADMIN")
                 .requestMatchers("/api/stock-in/**", "/api/daily-operations/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
                 .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
                 .requestMatchers("/api/**").hasRole("ADMIN")
@@ -44,8 +46,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService users() {
         return new InMemoryUserDetailsManager(
-                org.springframework.security.core.userdetails.User.withUsername("admin")
-                        .password("{noop}Earendel@4321")
+                org.springframework.security.core.userdetails.User.withUsername("admin@nexo.com")
+                        .password("{noop}admin123")
                         .roles("ADMIN")
                         .build(),
                 org.springframework.security.core.userdetails.User.withUsername("gm")

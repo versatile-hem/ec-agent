@@ -72,7 +72,7 @@ public class InventoryOperationsController {
                 .build();
     }
 
-    @GetMapping("/inventory/{productId}")
+    @GetMapping("/inventory/{productId:\\d+}")
     public InventoryBalanceResponseDto getInventory(@PathVariable Long productId) {
         BigDecimal qty = inventoryService.findInventoryPosition(productId.intValue()).getOnHandQty();
         return InventoryBalanceResponseDto.builder()

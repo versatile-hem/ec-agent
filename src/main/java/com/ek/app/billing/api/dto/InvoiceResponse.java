@@ -20,5 +20,6 @@ public class InvoiceResponse {
     private BigDecimal totalAmount;
     private String paymentMode;
     private String status;
+    private InvoiceCustomerResponse customer;
     private List<BillItemResponse> items;
 }

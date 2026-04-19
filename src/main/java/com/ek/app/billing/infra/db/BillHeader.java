@@ -27,6 +27,12 @@ public class BillHeader {
     private String billNo;
 
     private String customerName;
+
+    private Long customerId;
+
+    private String customerGstin;
+
+    private String customerState;
     
     private String customerPhone;
 

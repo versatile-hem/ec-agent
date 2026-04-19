@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.ek.app.billing.api.dto.BillItemResponse;
 import com.ek.app.billing.api.dto.BillingGenerateRequest;
+import com.ek.app.billing.api.dto.InvoiceCustomerResponse;
 import com.ek.app.billing.api.dto.InvoiceResponse;
 import com.ek.app.billing.domain.BillHeaderDTO;
 import com.ek.app.billing.domain.BillItemDTO;
@@ -17,6 +18,7 @@ public class BillingApiMapper {
     public BillHeaderDTO toDomain(BillingGenerateRequest request) {
         BillHeaderDTO dto = new BillHeaderDTO();
         dto.setBillNo(request.getBillNo());
+        dto.setCustomerId(request.getCustomerId());
         dto.setCustomerName(request.getCustomerName());
         dto.setCustomerPhone(request.getCustomerPhone());
         dto.setBillDate(request.getBillDate());
@@ -49,6 +51,10 @@ public class BillingApiMapper {
         response.setTotalAmount(dto.getTotalAmount());
         response.setPaymentMode(dto.getPaymentMode());
         response.setStatus(dto.getStatus());
+        response.setCustomer(new InvoiceCustomerResponse(
+            dto.getCustomerName(),
+            dto.getCustomerGstin(),
+            dto.getCustomerState()));
 
         List<BillItemResponse> items = dto.getItems() == null
                 ? Collections.emptyList()

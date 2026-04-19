@@ -1,8 +1,10 @@
 package com.ek.app.inventory.infra.db;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +15,14 @@ import com.ek.app.productcatalog.infra.db.Product;
 
 @Repository
 public interface InventoryPositionRepository extends JpaRepository<InventoryPosition, Long> {
+
+        interface ProductQuantityProjection {
+                Long getProductId();
+
+                String getProductName();
+
+                BigDecimal getQuantity();
+        }
 
         Optional<InventoryPosition> findByProduct(Product product);
 
@@ -41,4 +51,32 @@ public interface InventoryPositionRepository extends JpaRepository<InventoryPosi
 
         @Query(value = "select count(1) from inventory_position ip where ip.on_hand_qty < :qty", nativeQuery = true)
         long countByOnHandQtyLessThan(@Param("qty") BigDecimal qty);
+
+         @Query("""
+                           select p.productId as productId,
+                                   p.name as productName,
+                                   ip.onHandQty as quantity
+                           from InventoryPosition ip
+                           join ip.product p
+                           where ip.onHandQty < :threshold
+                           order by ip.onHandQty asc
+                           """)
+         List<ProductQuantityProjection> findLowStockProducts(@Param("threshold") BigDecimal threshold);
+
+         @Query("""
+                           select coalesce(sum(coalesce(p.mrp, 0) * ip.onHandQty), 0)
+                           from InventoryPosition ip
+                           join ip.product p
+                           """)
+         BigDecimal getTotalStockValueByPrice();
+
+         @Query("""
+                           select p.productId as productId,
+                                   p.name as productName,
+                                   ip.onHandQty as quantity
+                           from InventoryPosition ip
+                           join ip.product p
+                           order by ip.onHandQty desc
+                           """)
+         List<ProductQuantityProjection> findTopProductsByQuantity(Pageable pageable);
 }
