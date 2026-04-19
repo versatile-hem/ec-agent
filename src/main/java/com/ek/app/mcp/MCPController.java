@@ -20,7 +20,11 @@ public class MCPController {
 
     @PostMapping(value = "/chat", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> chat(@RequestBody PromptRequest request) {
-        String output = llmService.chat(request.prompt());
+       // String output = llmService.chat(request.prompt());
+        String output = "sample response for prompt: " + request.prompt() + " (Replace this with actual LLM response)";
+        
+        
+
         return Map.of(
                 "prompt", request.prompt(),
                 "response", output

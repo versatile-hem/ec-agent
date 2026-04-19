@@ -2,39 +2,43 @@ package com.ek.app;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.ek.app.gui.LoginView;
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
-
 /**
  * 
  */
 @EnableWebSecurity
 @Configuration
-public class SecurityConfig extends VaadinWebSecurity {
+public class SecurityConfig {
 
     @Bean
-    @Order(1)
-    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/**", "/error")
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .csrf(csrf -> csrf.disable());
-
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/error",
+                        "/swagger/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/api-docs/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
+                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers("/api/stock-in/**", "/api/daily-operations/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
+                .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "OPERATION_MANAGER")
+                .requestMatchers("/api/**").hasRole("ADMIN")
+                .anyRequest().authenticated())
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> {
+                });
         return http.build();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        // Keep Vaadin's default security for UI routes.
-        super.configure(http);
-
-        setLoginView(http, LoginView.class);
     }
 
     @Bean
@@ -46,7 +50,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                         .build(),
                 org.springframework.security.core.userdetails.User.withUsername("gm")
                         .password("{noop}Earendel@54321")
-                        .roles("ADMIN")
+                        .roles("OPERATION_MANAGER")
                         .build()
 
         );

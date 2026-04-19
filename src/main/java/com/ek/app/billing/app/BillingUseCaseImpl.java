@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,7 +107,7 @@ public class BillingUseCaseImpl implements BillingUseCase {
             BigDecimal quantity = item.getQuantity() == null ? BigDecimal.ONE : item.getQuantity();
             BigDecimal unitPrice = item.getUnitPrice();
             BigDecimal gst = resolveGstRateFromTaxCode(product);
-
+ 
             BigDecimal taxableValue = unitPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP);
             BigDecimal tax = taxableValue.multiply(gst).divide(HUNDRED, 2, RoundingMode.HALF_UP);
             BigDecimal finalAmount = taxableValue.add(tax).setScale(2, RoundingMode.HALF_UP);
@@ -161,44 +162,48 @@ public class BillingUseCaseImpl implements BillingUseCase {
     public List<BillHeaderDTO> listBills(LocalDate minusMonths, LocalDate now) {
         return billRepo.findAll()
                 .stream()
-                .map(e -> {
-                    log.info("entity : {}", e);
-                    BillHeaderDTO dto = new BillHeaderDTO();
-                    dto.setId(e.getId());
-                    dto.setBillNo(e.getBillNo());
-                    dto.setCustomerName(e.getCustomerName());
-                    dto.setCustomerPhone(e.getCustomerPhone());
-                    dto.setBillDate(e.getBillDate());
-                    dto.setSubtotal(e.getSubtotal());
-                    dto.setTaxAmount(e.getTaxAmount());
-                    dto.setDiscountAmount(e.getDiscountAmount());
-                    dto.setTotalAmount(e.getTotalAmount());
-                    dto.setPaymentMode(e.getPaymentMode());
-                    dto.setStatus(e.getStatus());
-                    // Items mapping (if present)
-                    if (e.getItems() != null) {
-                        dto.setItems(
-                                e.getItems().stream()
-                                        .map(i -> {
-                                            BillItemDTO item = new BillItemDTO();
-                                            // item.setId(i.getId());
-                                            item.setProductName(i.getProductName());
-                                            item.setHsn(i.getHsn());
-                                            item.setQuantity(i.getQuantity());
-                                            item.setUnitPrice(i.getUnitPrice());
-                                            item.setTaxableValue(i.getTaxableValue());
-                                            item.setGst(i.getGst());
-                                            item.setTax(i.getTax());
-                                            item.setFinalAmount(i.getFinalAmount());
-                                            return item;
-                                        })
-                                        .toList());
-                    }
-
-                    return dto;
-
+                .filter(e -> e.getBillDate() != null)
+                .filter(e -> {
+                    LocalDate billDate = e.getBillDate().toLocalDate();
+                    return (minusMonths == null || !billDate.isBefore(minusMonths))
+                            && (now == null || !billDate.isAfter(now));
                 })
+                .map(this::toBillHeaderDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public BillHeaderDTO getBillById(Long id) {
+        BillHeader header = billRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bill not found: " + id));
+        return toBillHeaderDto(header);
+    }
+
+    @Override
+    @Transactional
+    public BillHeaderDTO updateBill(Long id, String paymentMode, String status) {
+        BillHeader header = billRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bill not found: " + id));
+
+        if (paymentMode != null && !paymentMode.isBlank()) {
+            header.setPaymentMode(paymentMode.trim());
+        }
+        if (status != null && !status.isBlank()) {
+            header.setStatus(status.trim());
+        }
+
+        BillHeader saved = billRepo.save(header);
+        return toBillHeaderDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBill(Long id) {
+        if (!billRepo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Bill not found: " + id);
+        }
+        billRepo.deleteById(id);
     }
 
 
@@ -233,6 +238,53 @@ public class BillingUseCaseImpl implements BillingUseCase {
     }
 
      private final Configuration freemarkerConfig;
+
+    private BillHeaderDTO toBillHeaderDto(BillHeader header) {
+        log.info("entity : {}", header);
+        BillHeaderDTO dto = new BillHeaderDTO();
+        dto.setId(header.getId());
+        dto.setBillNo(header.getBillNo());
+        dto.setCustomerName(header.getCustomerName());
+        dto.setCustomerPhone(header.getCustomerPhone());
+        dto.setBillDate(header.getBillDate());
+        dto.setSubtotal(header.getSubtotal());
+        dto.setTaxAmount(header.getTaxAmount());
+        dto.setDiscountAmount(header.getDiscountAmount());
+        dto.setTotalAmount(header.getTotalAmount());
+        dto.setPaymentMode(header.getPaymentMode());
+        dto.setStatus(header.getStatus());
+
+        if (header.getItems() != null) {
+            dto.setItems(header.getItems().stream().map(this::toBillItemDto).filter(Objects::nonNull).toList());
+        }
+
+        return dto;
+    }
+
+    private BillItemDTO toBillItemDto(BillItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        BillItemDTO dto = new BillItemDTO();
+        dto.setProductId(item.getProduct() != null ? item.getProduct().getProductId() : null);
+        dto.setProductName(item.getProductName());
+        dto.setQuantity(item.getQuantity());
+        dto.setUnitPrice(item.getUnitPrice());
+        dto.setLineTotal(item.getLineTotal());
+        dto.setSku(item.getSku());
+        dto.setBarcode(item.getBarcode());
+        dto.setCategory(item.getCategory());
+        dto.setHsn(item.getHsn());
+        dto.setTax_code(item.getTax_code());
+        dto.setGst(item.getGst());
+        dto.setWeightGrams(item.getWeightGrams());
+        dto.setMrp(item.getMrp());
+        dto.setTaxableValue(item.getTaxableValue());
+        dto.setTax(item.getTax());
+        dto.setFinalAmount(item.getFinalAmount());
+        return dto;
+    }
 
     private BigDecimal resolveGstRateFromTaxCode(Product product) {
         String taxCode = product.getTax_code();

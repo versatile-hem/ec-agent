@@ -12,7 +12,6 @@ import com.ek.app.inventory.infra.db.InventoryPositionRepository;
 import com.ek.app.productcatalog.app.UpdateProductInput;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
-import com.vaadin.flow.data.provider.DataProvider;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -114,14 +113,5 @@ public class ProductServiceImpl implements ProductService {
 		, entity);
 		return entity;
 	}
-
-    public DataProvider<Product, Void> findAll() {
-        
-		throw new UnsupportedOperationException("Unimplemented method 'findAll'");
-    }
-
-
-	
-
 
 }

@@ -1,135 +1,168 @@
 package com.ek.app.billing.app;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.apache.pdfbox.io.MemoryUsageSetting;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.ek.app.billing.api.BillingApiMapper;
+import com.ek.app.billing.api.dto.BillingGenerateRequest;
+import com.ek.app.billing.api.dto.BillingGenerateResponse;
+import com.ek.app.billing.api.dto.ClientResponse;
+import com.ek.app.billing.api.dto.InvoiceResponse;
+import com.ek.app.billing.api.dto.InvoiceUpdateRequest;
 import com.ek.app.billing.domain.BillHeaderDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @RestController
-@Tag(name = "Bill API", description = "Generate invoice using Freemarker")
-@RequestMapping("/api/billing")
+@Validated
+@Tag(name = "Billing API", description = "Billing and invoice management endpoints")
+@RequestMapping("/api")
 public class BillingController {
 
+    private final BillingUseCase billingUseCase;
+    private final BillingApiMapper mapper;
 
-    @Autowired
-    private BillingUseCase billingUseCase;
+    public BillingController(BillingUseCase billingUseCase, BillingApiMapper mapper) {
+        this.billingUseCase = billingUseCase;
+        this.mapper = mapper;
+    }
 
-
-    @PostMapping(value = "/generate", produces = org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
-    @Operation(
-        summary = "Generate Bill",
-        description = "Generates invoice PDF file"
-    )
+    @PostMapping("/billing/generate")
+    @Operation(summary = "Generate invoice", description = "Creates an invoice using SKU-based item request")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Bill generated successfully",
-            content = @Content(mediaType = "application/pdf")),
-        @ApiResponse(responseCode = "400", description = "Invalid request"),
-        @ApiResponse(responseCode = "404", description = "Product not found"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+            @ApiResponse(responseCode = "201", description = "Invoice generated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<byte[]>  generateBill(@RequestBody BillHeaderDTO request) {
-    long l = billingUseCase.createBill(request);
-    request.setId(l);
-    byte[] fileData = billingUseCase.generateBill(request);
+    public ResponseEntity<BillingGenerateResponse> generateBill(@Valid @RequestBody BillingGenerateRequest request) {
+        BillHeaderDTO domainRequest = mapper.toDomain(request);
+        Long id = billingUseCase.createBillFromProductNames(domainRequest);
+        domainRequest.setId(id);
+
+        BillingGenerateResponse response = new BillingGenerateResponse(
+                id,
+                domainRequest.getBillNo(),
+                domainRequest.getTotalAmount(),
+                "/api/invoice/" + id,
+                "/api/invoice/" + id + "/pdf",
+                "CREATED");
+
+        return ResponseEntity.created(URI.create("/api/invoice/" + id)).body(response);
+    }
+
+    @GetMapping("/invoice/{id}")
+    @Operation(summary = "Get invoice", description = "Fetch an invoice by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Invoice found"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found")
+    })
+    public InvoiceResponse getInvoice(@PathVariable @NotNull Long id) {
+        return mapper.toInvoiceResponse(billingUseCase.getBillById(id));
+    }
+
+    @GetMapping("/invoice")
+    @Operation(summary = "List invoices", description = "List invoices by date range")
+    public List<InvoiceResponse> listInvoices(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+
+        LocalDate start = fromDate == null ? LocalDate.now().minusMonths(1) : fromDate;
+        LocalDate end = toDate == null ? LocalDate.now() : toDate;
+
+        return billingUseCase.listBills(start, end)
+                .stream()
+                .map(mapper::toInvoiceResponse)
+                .toList();
+    }
+
+    @GetMapping(value = "/invoice/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @Operation(summary = "Download invoice PDF", description = "Generates invoice PDF for an existing invoice")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PDF generated successfully"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable @NotNull Long id) {
+        BillHeaderDTO bill = billingUseCase.getBillById(id);
+        byte[] fileData = billingUseCase.generateBill(bill);
         return ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bill.pdf")
-                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
                 .body(fileData);
     }
 
-    @PostMapping(value = "/v1/generate", produces = org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
-    @Operation(
-        summary = "Generate Bill V1",
-        description = "Generates invoice PDF by accepting sku and unitPrice in items and resolving product details from table. Defaults GST to 5% when item gst is not provided",
-        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            required = true,
-            description = "Provide sku and unitPrice in items. If gst is omitted at item level, 5% is auto-applied.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
-                mediaType = "application/json",
-                examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
-                    name = "V1 SKU Price Request",
-                    value = "{\n  \"billNo\": \"INV-V1-5003\",\n  \"customerName\": \"V1 Customer\",\n  \"customerPhone\": \"9999999999\",\n  \"billDate\": \"2026-04-17T19:45:00\",\n  \"discountAmount\": 10,\n  \"paymentMode\": \"UPI\",\n  \"status\": \"PAID\",\n  \"items\": [\n    {\n      \"sku\": \"SKU-1001\",\n      \"unitPrice\": 600,\n      \"quantity\": 2\n    }\n  ]\n}"
-                )
-            )
-        )
-    )
+    @PutMapping("/invoice/{id}")
+    @Operation(summary = "Update invoice", description = "Update invoice payment mode and status")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Bill generated successfully",
-            content = @Content(mediaType = "application/pdf")),
-        @ApiResponse(responseCode = "400", description = "Invalid request"),
-        @ApiResponse(responseCode = "404", description = "Product not found for sku"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+            @ApiResponse(responseCode = "200", description = "Invoice updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
-    public ResponseEntity<byte[]> generateBillV1(@RequestBody BillHeaderDTO request) {
-        long id = billingUseCase.createBillFromProductNames(request);
-        request.setId(id);
-        byte[] fileData = billingUseCase.generateBill(request);
-        return ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bill.pdf")
-                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                .body(fileData);
+    public InvoiceResponse updateInvoice(
+            @PathVariable @NotNull Long id,
+            @RequestBody InvoiceUpdateRequest request) {
+
+        BillHeaderDTO updated = billingUseCase.updateBill(id, request.getPaymentMode(), request.getStatus());
+        return mapper.toInvoiceResponse(updated);
     }
 
-    @PostMapping(value = "/v2/generate", produces = org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
-    @Operation(
-        summary = "Generate Multi Page Bill V2",
-        description = "Accepts an array of BillHeaderDTO, creates each bill using v1 flow and returns a single merged multi-page PDF"
-    )
+    @DeleteMapping("/invoice/{id}")
+    @Operation(summary = "Delete invoice", description = "Delete invoice by id")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Multi-page bill generated successfully",
-            content = @Content(mediaType = "application/pdf")),
-        @ApiResponse(responseCode = "400", description = "Invalid request"),
-        @ApiResponse(responseCode = "404", description = "Product not found for sku"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+            @ApiResponse(responseCode = "204", description = "Invoice deleted"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
-    public ResponseEntity<byte[]> generateBillV2(@RequestBody List<BillHeaderDTO> requests) {
-        if (requests == null || requests.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one bill request is required");
-        }
-
-        try {
-            PDFMergerUtility merger = new PDFMergerUtility();
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-            for (BillHeaderDTO request : requests) {
-                long id = billingUseCase.createBillFromProductNames(request);
-                request.setId(id);
-                byte[] fileData = billingUseCase.generateBill(request);
-                merger.addSource(new ByteArrayInputStream(fileData));
-            }
-
-            merger.setDestinationStream(output);
-            merger.mergeDocuments(MemoryUsageSetting.setupMainMemoryOnly());
-
-            return ResponseEntity.ok()
-                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bills.pdf")
-                    .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
-                    .body(output.toByteArray());
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating multi-page bill", ex);
-        }
+    public ResponseEntity<Void> deleteInvoice(@PathVariable @NotNull Long id) {
+        billingUseCase.deleteBill(id);
+        return ResponseEntity.noContent().build();
     }
- 
 
+    @GetMapping("/client")
+    @Operation(summary = "List clients", description = "Fetch unique clients from billing records")
+    public List<ClientResponse> listClients(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
 
-    
+        LocalDate start = fromDate == null ? LocalDate.now().minusMonths(3) : fromDate;
+        LocalDate end = toDate == null ? LocalDate.now() : toDate;
+        String query = q == null ? "" : q.trim().toLowerCase();
+
+        return billingUseCase.listBills(start, end)
+                .stream()
+                .filter(b -> !query.isBlank()
+                        ? containsIgnoreCase(b.getCustomerName(), query) || containsIgnoreCase(b.getCustomerPhone(), query)
+                        : true)
+                .map(b -> new ClientResponse(b.getCustomerName(), b.getCustomerPhone()))
+                .filter(c -> c.getCustomerName() != null && !c.getCustomerName().isBlank())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && value.toLowerCase().contains(query);
+    }
 
 }

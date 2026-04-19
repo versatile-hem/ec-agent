@@ -117,7 +117,7 @@ public class InventoryServiceImpl implements InventoryService {
                 .findById(movementDto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        Long productId = product.getId();
+        Long productId = product.getProductId();
         BigDecimal qty = movementDto.getQuantity();
         Optional<InventoryPosition> ip = this.inventoryPositionRepository.findByProduct(product);
 
