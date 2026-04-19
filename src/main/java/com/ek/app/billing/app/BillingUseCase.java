@@ -14,6 +14,12 @@ public interface BillingUseCase {
 
     List<BillHeaderDTO> listBills(LocalDate minusMonths, LocalDate now);
 
+    BillHeaderDTO getBillById(Long id);
+
+    BillHeaderDTO updateBill(Long id, String paymentMode, String status);
+
+    void deleteBill(Long id);
+
     byte[] generateBill(BillHeaderDTO billHeaderDTO);
 
 }

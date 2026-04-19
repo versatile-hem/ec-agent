@@ -15,6 +15,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<Product> findBySkuIgnoreCase(String sku);
 
+    Optional<Product> findByBarcode(String barcode);
+
     @Query("""
             select p
             from Product p

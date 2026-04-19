@@ -12,7 +12,6 @@ import com.ek.app.inventory.infra.db.InventoryPositionRepository;
 import com.ek.app.productcatalog.app.UpdateProductInput;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
-import com.vaadin.flow.data.provider.DataProvider;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -29,8 +28,35 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDto addProduct(ProductDto product) {
-       Product saved = repository.save(dtoToEntity(product));
+		Product saved = repository.save(dtoToEntity(product, new Product()));
 		return entityToDto(saved);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ProductDto getProductDtoById(Long productId) {
+		Product product = repository.findById(productId)
+				.orElseThrow(() -> new RuntimeException("Product not found"));
+		return entityToDto(product);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ProductDto getProductByBarcode(String barcode) {
+		Product product = repository.findByBarcode(barcode)
+				.orElseThrow(() -> new RuntimeException("Product not found for barcode: " + barcode));
+		return entityToDto(product);
+	}
+
+	@Override
+	@Transactional
+	public ProductDto updateProduct(Long productId, ProductDto product) {
+		Product existing = repository.findById(productId)
+				.orElseThrow(() -> new RuntimeException("Product not found"));
+
+		Product updated = dtoToEntity(product, existing);
+		updated.setProductId(existing.getProductId());
+		return entityToDto(repository.save(updated));
 	}
 
 	@Override
@@ -98,8 +124,20 @@ public class ProductServiceImpl implements ProductService {
 	 
 	public ProductDto entityToDto(Product product) {
 		ProductDto dto = new ProductDto();
-		BeanUtils.copyProperties(product
-		, dto);
+		dto.setProductId(product.getProductId());
+		dto.setName(product.getName());
+		dto.setSku(product.getSku());
+		dto.setProduct_title(product.getProduct_title());
+		dto.setBarcode(product.getBarcode());
+		dto.setCategory(product.getCategory());
+		dto.setHsn(product.getHsn());
+		dto.setHsnCode(product.getHsn());
+		dto.setTax_code(product.getTax_code());
+		dto.setWeightGrams(product.getWeightGrams());
+		dto.setMrp(product.getMrp());
+		dto.setPrice(product.getMrp());
+		dto.setCreatedAt(product.getCreatedAt());
+		dto.setUpdatedAt(product.getUpdatedAt());
 
 		InventoryPosition inventoryPosition = inventoryPostion.findByProduct(product).orElse(null);
 		if(inventoryPosition != null) {
@@ -108,20 +146,17 @@ public class ProductServiceImpl implements ProductService {
 		return dto;
 	}
 
-	public Product dtoToEntity(ProductDto dto) {
-		Product entity = new Product();
-		BeanUtils.copyProperties(dto
-		, entity);
+	public Product dtoToEntity(ProductDto dto, Product entity) {
+		entity.setName(dto.getName() != null ? dto.getName() : dto.getProduct_title());
+		entity.setSku(dto.getSku());
+		entity.setProduct_title(dto.getProduct_title() != null ? dto.getProduct_title() : dto.getName());
+		entity.setBarcode(dto.getBarcode());
+		entity.setCategory(dto.getCategory());
+		entity.setHsn(dto.getHsnCode() != null ? dto.getHsnCode() : dto.getHsn());
+		entity.setTax_code(dto.getTax_code());
+		entity.setWeightGrams(dto.getWeightGrams());
+		entity.setMrp(dto.getPrice() != null ? dto.getPrice() : dto.getMrp());
 		return entity;
 	}
-
-    public DataProvider<Product, Void> findAll() {
-        
-		throw new UnsupportedOperationException("Unimplemented method 'findAll'");
-    }
-
-
-	
-
 
 }

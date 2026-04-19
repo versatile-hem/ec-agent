@@ -13,7 +13,6 @@ import com.ek.app.productcatalog.db.Product;
 import com.ek.app.productcatalog.db.ProductRepository;
 import com.ek.app.productcatalog.dtos.CreateProductInput;
 import com.ek.app.productcatalog.dtos.UpdateProductInput;
-import com.vaadin.flow.data.provider.DataProvider;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -102,10 +101,6 @@ public class ProductServiceImpl implements ProductService {
 		BeanUtils.copyProperties(product
 		, dto);
 
-		InventoryPosition inventoryPosition = inventoryPostion.findByProduct(product).orElse(null);
-		if(inventoryPosition != null) {
-			dto.setAvailableStock(inventoryPosition.getOnHandQty().longValue()	);
-		}
 		return dto;
 	}
 
@@ -115,14 +110,5 @@ public class ProductServiceImpl implements ProductService {
 		, entity);
 		return entity;
 	}
-
-    public DataProvider<Product, Void> findAll() {
-        
-		throw new UnsupportedOperationException("Unimplemented method 'findAll'");
-    }
-
-
-	
-
 
 }

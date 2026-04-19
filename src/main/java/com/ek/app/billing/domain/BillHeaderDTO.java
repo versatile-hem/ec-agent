@@ -24,6 +24,12 @@ public class BillHeaderDTO {
     @Schema(example = "Rahul Sharma")
     private String customerName;
 
+    private Long customerId;
+
+    private String customerGstin;
+
+    private String customerState;
+
     @Schema(example = "9876543210")
     private String customerPhone;
 
