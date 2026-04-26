@@ -1,6 +1,7 @@
 package com.ek.app.inventory.app.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -23,4 +24,8 @@ public class StockInRequestDto {
     private String supplier;
 
     private String batchNumber;
+
+    private LocalDateTime movementTime;
+
+    
 }

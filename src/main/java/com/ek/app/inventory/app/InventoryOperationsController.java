@@ -1,6 +1,7 @@
 package com.ek.app.inventory.app;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class InventoryOperationsController {
             movement.setMovementType(InventoryType.IN);
             movement.setQuantity(request.getQuantity());
             movement.setReference("supplier=" + request.getSupplier() + ",batch=" + request.getBatchNumber());
+            movement.setMovementTime(request.getMovementTime() != null ? request.getMovementTime() : LocalDateTime.now());
             inventoryService.updateStock(movement);
 
             BigDecimal qty = inventoryService.findInventoryPosition(request.getProductId().intValue()).getOnHandQty();
@@ -62,6 +64,7 @@ public class InventoryOperationsController {
         movement.setQuantity(request.getQuantity());
         movement.setReference("courier=" + request.getCourier());
         movement.setSalesChannel(request.getChannel());
+        movement.setMovementTime(request.getMovementTime() != null ? request.getMovementTime() : LocalDateTime.now());
 
         inventoryService.updateStock(movement);
         BigDecimal qty = inventoryService.findInventoryPosition(request.getProductId().intValue()).getOnHandQty();

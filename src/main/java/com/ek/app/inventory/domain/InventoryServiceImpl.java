@@ -2,6 +2,7 @@ package com.ek.app.inventory.domain;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,10 @@ public class InventoryServiceImpl implements InventoryService {
     private InventoryMovement toEntity(InventoryMovementDto i) {
         InventoryMovement entity = new InventoryMovement();
         BeanUtils.copyProperties(i, entity);
+        // Ensure movementTime is set - use provided time or current time
+        if (entity.getMovementTime() == null) {
+            entity.setMovementTime(LocalDateTime.now());
+        }
         return entity;
     }
 

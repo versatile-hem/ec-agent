@@ -7,17 +7,34 @@ This starter project is a Spring Boot application that:
 - Marks shipments as RTD on Flipkart after successful print
 - Sends email alerts (Gmail) on failures (printing, label gen, etc.)
 
-## How to use
+## How to Run
 
-1. Set environment variable FLIPKART_TOKEN with your API token.
-2. Update `src/main/resources/application.properties`:
-   - printer.name to match your TSC printer name as listed by the OS.
-   - spring.mail.username and spring.mail.password (Gmail app password).
-   - alert.recipients.
-3. Build and run:
+### Local Development
+1. Ensure PostgreSQL is running on localhost:5432 with database `nexo`
+2. Configure local settings in `src/main/resources/application.properties`:
+   - Database: `spring.datasource.url` should point to localhost
+   - Printer: Set `printer.name` to match your TSC printer name
+   - Email: Update `spring.mail.username` and `spring.mail.password` (use Gmail app password)
+   - Alerts: Set `alert.recipients` for email notifications
+3. Set environment variable for Flipkart token:
+   ```bash
+   export FLIPKART_TOKEN=your_token_here
    ```
-   mvn clean package
+4. Run locally with default properties (development mode):
+   ```bash
+   mvn spring-boot:run
+   # OR
+   mvn clean install
    java -jar target/flipkart-label-agent-0.0.1-SNAPSHOT.jar
+   ```
+
+### Production Deployment
+1. Configure production settings in `src/main/resources/application-prod.properties`
+2. Activate production profile:
+   ```bash
+   mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
+   # OR
+   java -jar target/flipkart-label-agent-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
    ```
 
 ## Notes
