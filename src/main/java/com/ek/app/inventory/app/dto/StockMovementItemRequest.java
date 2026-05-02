@@ -2,8 +2,8 @@ package com.ek.app.inventory.app.dto;
 
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +19,8 @@ public class StockMovementItemRequest {
     private Long productId;
 
     @NotNull(message = "Quantity is required")
-    @Min(value = 1, message = "Quantity must be greater than 0")
+    @Positive(message = "Quantity must be greater than 0")
     private BigDecimal quantity;
 
-    // Optional reference like batch number, supplier reference, order ID
-    private String reference;
+    private String reference; // Optional item-level reference
 }
