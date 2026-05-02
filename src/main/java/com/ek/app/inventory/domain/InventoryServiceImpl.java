@@ -20,9 +20,13 @@ import com.ek.app.inventory.infra.db.InventoryPosition;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class InventoryServiceImpl implements InventoryService {
 
     private final ProductRepository productRepository;
@@ -31,6 +35,9 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     private InventoryMovementRepository inventoryRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     InventoryServiceImpl(InventoryPositionRepository inventoryPositionRepository, ProductRepository productRepository) {
         this.inventoryPositionRepository = inventoryPositionRepository;
@@ -116,7 +123,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStock(InventoryMovementDto movementDto) {
         Product product = productRepository
                 .findById(movementDto.getProductId())
@@ -170,6 +177,10 @@ public class InventoryServiceImpl implements InventoryService {
             default:
                 break;
         }
+        
+        // Flush to ensure @Modifying queries are persisted
+        entityManager.flush();
+        
         movementDto.setProductId(productId);
         InventoryMovement mov = dtoToEntity(movementDto);
         mov.setProduct(product);
@@ -200,6 +211,21 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryPosition findInventoryPosition(int product_id) {
         Product product = this.productRepository.findById((long) product_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return this.inventoryPositionRepository.findByProduct(product)
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found for product"));
+    }
+    
+    /**
+     * Get fresh inventory position, bypassing Hibernate cache
+     * Used after inventory updates to ensure latest values
+     */
+    public InventoryPosition getLatestInventoryPosition(int product_id) {
+        Product product = this.productRepository.findById((long) product_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        // Clear first-level cache to ensure fresh database query
+        if (entityManager != null) {
+            entityManager.clear();
+        }
         return this.inventoryPositionRepository.findByProduct(product)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory not found for product"));
     }
