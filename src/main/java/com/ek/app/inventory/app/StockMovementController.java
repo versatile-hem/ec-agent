@@ -3,27 +3,21 @@ package com.ek.app.inventory.app;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ek.app.inventory.app.dto.CreateStockMovementRequest;
 import com.ek.app.inventory.app.dto.StockMovementPageResponse;
 import com.ek.app.inventory.app.dto.StockMovementResponse;
-import com.ek.app.inventory.domain.StockMovementService;
-import com.ek.app.inventory.infra.db.StockMovement.StockMovementType;
+import com.ek.app.inventory.domain.InventoryMovementStockMovementService;
+import com.ek.app.inventory.infra.db.StockMovementType;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,25 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StockMovementController {
 
-    private final StockMovementService stockMovementService;
+    private final InventoryMovementStockMovementService stockMovementService;
 
     /**
-     * 1️⃣ CREATE STOCK MOVEMENT
-     * POST /api/stock-movements
+     * 1️⃣ CREATE STOCK MOVEMENT - DEPRECATED
+     * Use POST /api/end-of-day-operations instead to create stock movements
      * 
-     * Request:
-     * {
-     *   "type": "IN",
-     *   "reference": "MANUAL",
-     *   "notes": "optional",
-     *   "items": [
-     *     {
-     *       "productId": 1,
-     *       "quantity": 10
-     *     }
-     *   ]
-     * }
+     * Stock movements are now created automatically by the inventory operations API.
+     * This endpoint is disabled as all movements should be created through:
+     * - POST /api/end-of-day-operations (for batch daily operations)
+     * - POST /api/daily-operations (for individual operations)
      */
+    /*
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<StockMovementResponse> createStockMovement(
@@ -67,6 +54,7 @@ public class StockMovementController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+    */
 
     /**
      * 2️⃣ GET STOCK MOVEMENTS

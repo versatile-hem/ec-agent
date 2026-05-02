@@ -3,8 +3,8 @@ package com.ek.app.inventory.app.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.ek.app.inventory.infra.db.StockMovement.StockMovementReference;
-import com.ek.app.inventory.infra.db.StockMovement.StockMovementType;
+import com.ek.app.inventory.infra.db.StockMovementReference;
+import com.ek.app.inventory.infra.db.StockMovementType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

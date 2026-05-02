@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ek.app.inventory.app.dto.CreateStockMovementRequest;
 import com.ek.app.inventory.app.dto.StockMovementItemRequest;
-import com.ek.app.inventory.infra.db.StockMovement;
-import com.ek.app.inventory.infra.db.StockMovementRepository;
 import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
 import com.ek.app.inventory.infra.db.InventoryMovementRepository;
@@ -48,9 +46,6 @@ public class InventoryFlowTest {
     private ProductRepository productRepository;
 
     @Autowired
-    private StockMovementRepository stockMovementRepository;
-
-    @Autowired
     private InventoryMovementRepository inventoryMovementRepository;
 
     @Autowired
@@ -62,7 +57,6 @@ public class InventoryFlowTest {
     @BeforeEach
     public void setup() throws Exception {
         // Clean up test data - delete in correct order to respect foreign keys
-        stockMovementRepository.deleteAll();
         inventoryMovementRepository.deleteAll();
         inventoryPositionRepository.deleteAll();
         productRepository.deleteAll();
