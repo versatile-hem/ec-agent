@@ -10,6 +10,8 @@ import com.ek.app.customer.entity.Customer;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
+        java.util.Optional<Customer> findFirstByNameIgnoreCase(String name);
+
     boolean existsByCpId(String cpId);
 
     @Query("""

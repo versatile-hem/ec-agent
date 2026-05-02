@@ -1,6 +1,7 @@
 package com.ek.app.inventory.app.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.ek.app.inventory.infra.db.SalesChannel;
 
@@ -33,4 +34,6 @@ public class DailyOperationRequestDto {
     private String courier;
 
     private SalesChannel channel;
+
+    private LocalDateTime movementTime;
 }
