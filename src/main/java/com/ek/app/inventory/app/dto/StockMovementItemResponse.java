@@ -3,6 +3,8 @@ package com.ek.app.inventory.app.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.ek.app.inventory.infra.db.SalesChannel;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +27,6 @@ public class StockMovementItemResponse {
     private BigDecimal quantity;
 
     private String reference;
+
+    private SalesChannel salesChannel;
 }
