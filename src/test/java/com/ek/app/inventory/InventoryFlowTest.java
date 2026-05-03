@@ -130,7 +130,7 @@ public class InventoryFlowTest {
         // Arrange: Create OUT movement
         CreateStockMovementRequest request = new CreateStockMovementRequest();
         request.setType(StockMovementType.OUT);
-        request.setReference(StockMovementReference.ORDER);
+        request.setReference(StockMovementReference.OFFLINE);
         request.setNotes("Customer order fulfillment");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -216,7 +216,7 @@ public class InventoryFlowTest {
         // Arrange: Try to remove 100 units
         CreateStockMovementRequest request = new CreateStockMovementRequest();
         request.setType(StockMovementType.OUT);
-        request.setReference(StockMovementReference.ORDER);
+        request.setReference(StockMovementReference.OFFLINE);
         request.setNotes("This should fail");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -539,7 +539,7 @@ public class InventoryFlowTest {
     private void removeStockOut(BigDecimal quantity) throws Exception {
         CreateStockMovementRequest request = new CreateStockMovementRequest();
         request.setType(StockMovementType.OUT);
-        request.setReference(StockMovementReference.ORDER);
+        request.setReference(StockMovementReference.OFFLINE);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);

@@ -147,6 +147,7 @@ public class InventoryMovementStockMovementService {
                 .id(movement.getId())
                 .type(mapInventoryTypeToStockMovementType(movement.getMovementType()))
                 .reference(mapReferenceToEnum(movement.getReference(), movement.getMovementType()))
+
                 .notes(movement.getReference()) // Use reference as notes for context
                 .createdBy(movement.getCreatedBy())
                 .createdAt(movement.getCreatedAt())
@@ -165,6 +166,7 @@ public class InventoryMovementStockMovementService {
                 .sku(movement.getProduct().getSku())
                 .quantity(movement.getQuantity())
                 .reference(movement.getReference())
+                .salesChannel(movement.getSalesChannel() )
                 .build();
     }
 
@@ -194,31 +196,19 @@ public class InventoryMovementStockMovementService {
      */
     private StockMovementReference mapReferenceToEnum(String reference, InventoryType type) {
         if (reference == null || reference.isBlank()) {
-            return StockMovementReference.MANUAL;
+            return StockMovementReference.OFFLINE;
         }
 
         String ref = reference.toUpperCase();
 
         // Try exact matches
-        if (ref.contains("ORDER")) return StockMovementReference.ORDER;
-        if (ref.contains("RETURN")) return StockMovementReference.RETURN;
-        if (ref.contains("ADJUSTMENT")) return StockMovementReference.ADJUSTMENT;
-        if (ref.contains("SUPPLIER")) return StockMovementReference.SUPPLIER;
-        if (ref.contains("DAMAGE")) return StockMovementReference.DAMAGE;
-        if (ref.contains("TRANSFER")) return StockMovementReference.TRANSFER;
         if (ref.contains("MEESHO")) return StockMovementReference.MEESHO;
         if (ref.contains("FLIPKART")) return StockMovementReference.FLIPKART;
+        if (ref.contains("AMAZON")) return StockMovementReference.AMAZON;
+        if (ref.contains("SUPPLIER")) return StockMovementReference.SUPPLIER;
+        if (ref.contains("OFFLINE")) return StockMovementReference.OFFLINE;
 
-        // Fallback based on movement type
-        switch (type) {
-            case RETURN:
-                return StockMovementReference.RETURN;
-            case DAMAGE:
-                return StockMovementReference.DAMAGE;
-            case ADJUST:
-                return StockMovementReference.ADJUSTMENT;
-            default:
-                return StockMovementReference.MANUAL;
-        }
+        // Default to OFFLINE for unknown references or order types
+        return StockMovementReference.OFFLINE;
     }
 }
