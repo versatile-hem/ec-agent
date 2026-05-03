@@ -2,8 +2,8 @@ package com.ek.app.inventory.app.dto;
 
 import java.util.List;
 
-import com.ek.app.inventory.infra.db.StockMovement.StockMovementReference;
-import com.ek.app.inventory.infra.db.StockMovement.StockMovementType;
+import com.ek.app.inventory.infra.db.StockMovementReference;
+import com.ek.app.inventory.infra.db.StockMovementType;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

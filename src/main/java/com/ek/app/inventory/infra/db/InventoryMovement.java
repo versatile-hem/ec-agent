@@ -30,7 +30,6 @@ import lombok.Setter;
 @Entity
 @jakarta.persistence.Table(name = "inventory_movement", uniqueConstraints = @UniqueConstraint(name = "uk_inventory_location", columnNames = {
         "location" })
-
 )
 @Getter
 @Setter

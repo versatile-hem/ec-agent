@@ -46,6 +46,12 @@ public interface InventoryService {
      * @return
      */
     InventoryPosition findInventoryPosition(int product_id);
+    
+    /**
+     * Get fresh inventory position, bypassing Hibernate cache
+     * Used after inventory updates to ensure latest values
+     */
+    InventoryPosition getLatestInventoryPosition(int product_id);
 
     /**
      * 
