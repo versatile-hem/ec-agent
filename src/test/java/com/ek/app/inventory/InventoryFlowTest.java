@@ -25,6 +25,8 @@ import com.ek.app.productcatalog.infra.db.Product;
 import com.ek.app.productcatalog.infra.db.ProductRepository;
 import com.ek.app.inventory.infra.db.InventoryMovementRepository;
 import com.ek.app.inventory.infra.db.InventoryPositionRepository;
+import com.ek.app.inventory.infra.db.StockMovementType;
+import com.ek.app.inventory.infra.db.StockMovementReference;
 
 /**
  * Comprehensive integration test for inventory flow
@@ -88,8 +90,8 @@ public class InventoryFlowTest {
     public void testStockIn_ReceiveFromSupplier() throws Exception {
         // Arrange
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
         request.setNotes("Initial stock from supplier");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -127,8 +129,8 @@ public class InventoryFlowTest {
 
         // Arrange: Create OUT movement
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.ORDER);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.ORDER);
         request.setNotes("Customer order fulfillment");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -161,8 +163,8 @@ public class InventoryFlowTest {
 
         // Arrange: Create Meesho OUT movement
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.MEESHO);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.MEESHO);
         request.setNotes("Daily Meesho order fulfillment");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -213,8 +215,8 @@ public class InventoryFlowTest {
 
         // Arrange: Try to remove 100 units
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.ORDER);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.ORDER);
         request.setNotes("This should fail");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -236,8 +238,8 @@ public class InventoryFlowTest {
     public void testInvalidProduct_ShouldFail() throws Exception {
         // Arrange: Use non-existent product ID
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(99999L);
@@ -258,8 +260,8 @@ public class InventoryFlowTest {
     public void testZeroQuantity_ShouldFail() throws Exception {
         // Arrange
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);
@@ -279,8 +281,8 @@ public class InventoryFlowTest {
     public void testNegativeQuantity_ShouldFail() throws Exception {
         // Arrange
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);
@@ -324,8 +326,8 @@ public class InventoryFlowTest {
     public void testEmptyItems_ShouldFail() throws Exception {
         // Arrange
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
         request.setItems(java.util.Arrays.asList()); // Empty list
 
         // Act & Assert
@@ -346,8 +348,8 @@ public class InventoryFlowTest {
 
         // Arrange: Create movement with 2 items
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
         request.setNotes("Bulk receiving from supplier");
 
         StockMovementItemRequest item1 = new StockMovementItemRequest();
@@ -392,8 +394,8 @@ public class InventoryFlowTest {
 
         // Arrange: Flipkart order
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.FLIPKART);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.FLIPKART);
         request.setNotes("Daily Flipkart order fulfillment");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -506,8 +508,8 @@ public class InventoryFlowTest {
 
     private String createStockInRequest() throws Exception {
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
         request.setNotes("Helper stock in");
 
         StockMovementItemRequest item = new StockMovementItemRequest();
@@ -520,8 +522,8 @@ public class InventoryFlowTest {
 
     private void addStockInSupplier(BigDecimal quantity) throws Exception {
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.IN);
-        request.setReference(StockMovement.StockMovementReference.SUPPLIER);
+        request.setType(StockMovementType.IN);
+        request.setReference(StockMovementReference.SUPPLIER);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);
@@ -536,8 +538,8 @@ public class InventoryFlowTest {
 
     private void removeStockOut(BigDecimal quantity) throws Exception {
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.ORDER);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.ORDER);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);
@@ -552,8 +554,8 @@ public class InventoryFlowTest {
 
     private void removeMeeshoOrder(BigDecimal quantity) throws Exception {
         CreateStockMovementRequest request = new CreateStockMovementRequest();
-        request.setType(StockMovement.StockMovementType.OUT);
-        request.setReference(StockMovement.StockMovementReference.MEESHO);
+        request.setType(StockMovementType.OUT);
+        request.setReference(StockMovementReference.MEESHO);
 
         StockMovementItemRequest item = new StockMovementItemRequest();
         item.setProductId(productId);
