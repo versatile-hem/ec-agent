@@ -29,5 +29,7 @@ public class StockMovementResponse {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime movementTime;
+
     private List<StockMovementItemResponse> items;
 }
