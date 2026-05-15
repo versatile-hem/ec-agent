@@ -151,6 +151,7 @@ public class InventoryMovementStockMovementService {
                 .notes(movement.getReference()) // Use reference as notes for context
                 .createdBy(movement.getCreatedBy())
                 .createdAt(movement.getCreatedAt())
+                .movementTime(movement.getMovementTime())
                 .items(List.of(mapItemToResponse(movement)))
                 .build();
     }
